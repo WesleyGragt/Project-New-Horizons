@@ -3,11 +3,14 @@ using UnityEngine;
 public class Rotate : MonoBehaviour
 {
     public float maxAngle = 10f;
+    public Joystick joystick;
 
     private Player player;
     private GameObject pivot;
     
     private Vector3 rotation;
+
+    private Quaternion prevRot;
 
     private void Start()
     {
@@ -16,26 +19,6 @@ public class Rotate : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S))
-        {
-            rotation.x = maxAngle;
-        }
-        else if (!Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.S))
-        {
-            rotation.x = -maxAngle;
-        }
-        else rotation.x = 0;
-
-        if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
-        {
-            rotation.z = maxAngle;
-        }
-        else if (!Input.GetKey(KeyCode.A) && Input.GetKey(KeyCode.D))
-        {
-            rotation.z = -maxAngle;
-        }
-        else rotation.z = 0;
-
         ParentRotate();
     }
 
@@ -47,18 +30,25 @@ public class Rotate : MonoBehaviour
 
         transform.parent = pivot.transform;
 
-        pivot.transform.eulerAngles = rotation;
+        Vector2 dir = joystick.Direction * maxAngle;
+        Quaternion rotationAroundAxis = Quaternion.identity;
+        
+        rotationAroundAxis = Quaternion.AngleAxis(dir.y, player.right);
+        rotationAroundAxis *= Quaternion.AngleAxis(-dir.x, player.forward);
+
+        pivot.transform.rotation = Quaternion.Lerp(prevRot, rotationAroundAxis, Time.deltaTime);
+        prevRot = pivot.transform.rotation;
 
         transform.parent = null;
 
         //fix position after rotation
-        if (rotation == Vector3.zero)
+        if (dir.magnitude <= 0.1f)
         {
             pivot.transform.position = Vector3.zero;
 
             player.transform.parent = pivot.transform;
             transform.parent = pivot.transform;
-            
+
             pivot.transform.position = -transform.position;
 
             player.transform.parent = null;
