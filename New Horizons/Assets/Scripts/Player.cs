@@ -1,12 +1,16 @@
+using System.Net.Security;
 using UnityEngine;
 using UnityEngine.XR;
 
 public class Player : MonoBehaviour
 {
+    public float speed;
+
     [HideInInspector] public Vector3 position;
     [HideInInspector] public Vector3 forward;
     [HideInInspector] public Vector3 right;
     [HideInInspector] public Vector3 velocity;
+    
     private Rigidbody rb;
 
     private void Start()
@@ -34,7 +38,10 @@ public class Player : MonoBehaviour
 
             right = -Vector3.Cross(forward, Vector3.up);
         }
-     
+
+        if (velocity.y < -.1f) rb.AddForce(velocity.normalized * speed);
+        if (velocity.y > 0) velocity *= 0.9f;
+
         velocity = rb.linearVelocity;
     }
 

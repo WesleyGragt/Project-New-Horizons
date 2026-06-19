@@ -5,27 +5,43 @@ public class Rotate : MonoBehaviour
     public float maxAngle = 10f;
     public Joystick joystick;
 
+    [Space]
+    public float resetTransformSpeed = 1f;
+
     private Player player;
+    private CameraControl camControl;
     private GameObject pivot;
     
-    private Vector3 rotation;
-
     private Quaternion prevRot;
+
+    private void OnEnable()
+    {
+        joystick.gameObject.SetActive(true);
+    }
+    
+    private void OnDisable()
+    {
+        joystick.gameObject.SetActive(false);
+    }
 
     private void Start()
     {
         player = FindFirstObjectByType<Player>();
+        camControl = FindFirstObjectByType<CameraControl>();
+        pivot = new GameObject("pivot");
     }
 
     void Update()
     {
-        ParentRotate();
+        Vector2 dir = joystick.Direction * maxAngle;
+        if (dir.magnitude <= 0.1f)
+        {
+            ResetRot();
+        } else JoystickRotate();
     }
 
-    private void ParentRotate()
+    private void JoystickRotate()
     {
-        //create empty on player pos and rotate
-        if (pivot == null) pivot = new GameObject("pivot");
         pivot.transform.position = player.position;
 
         transform.parent = pivot.transform;
@@ -40,19 +56,21 @@ public class Rotate : MonoBehaviour
         prevRot = pivot.transform.rotation;
 
         transform.parent = null;
+    }
 
-        //fix position after rotation
-        if (dir.magnitude <= 0.1f)
-        {
-            pivot.transform.position = Vector3.zero;
+    private void ResetRot()
+    {
+        pivot.transform.position = Vector3.zero;
 
-            player.transform.parent = pivot.transform;
-            transform.parent = pivot.transform;
+        player.transform.parent = pivot.transform;
+        camControl.transform.parent = pivot.transform;
+        transform.parent = pivot.transform;
 
-            pivot.transform.position = -transform.position;
+        pivot.transform.position = Vector3.Lerp(pivot.transform.position, -transform.position, Time.deltaTime * resetTransformSpeed);
+        pivot.transform.rotation = Quaternion.Lerp(pivot.transform.rotation, Quaternion.identity, Time.deltaTime * resetTransformSpeed);
 
-            player.transform.parent = null;
-            transform.parent = null;
-        }
+        player.transform.parent = null;
+        camControl.transform.parent = null;
+        transform.parent = null;
     }
 }

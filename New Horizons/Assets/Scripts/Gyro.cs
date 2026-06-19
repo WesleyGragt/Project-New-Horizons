@@ -8,8 +8,9 @@ public class Gyro : MonoBehaviour
     //If time, combine AcceleroMeter with Gyroscope
     //Check out sensor fusion to combine both!!!!
 
-    public Transform fakeAccel;
+    public float maxAngle = 45f;
     public float smoothSpeed = 1f;
+    public float resetTransformSpeed = 1f;
 
     private Vector3 smoothAcceleration = Vector3.zero;
 
@@ -17,16 +18,16 @@ public class Gyro : MonoBehaviour
     private CameraControl camControl;
     private GameObject pivot;
 
-    private Vector3 startPos = Vector3.zero;
     private Vector3 startRot = Vector3.zero;
     private Vector3 acceleration;
+
+    private Quaternion prevRot;
 
     private void Start()
     {
         player = FindFirstObjectByType<Player>();
         camControl = FindFirstObjectByType<CameraControl>();
-
-        startPos = transform.position;
+        pivot = new GameObject("GyroPivot");
     }
 
     private void OnEnable()
@@ -46,7 +47,6 @@ public class Gyro : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (pivot == null) pivot = new GameObject("GyroPivot");
         pivot.transform.position = player.position;
 
         AcceleroMeter();
@@ -57,19 +57,42 @@ public class Gyro : MonoBehaviour
     {
         if (startRot == Vector3.zero) startRot = -Input.acceleration;
 
-        acceleration = -Input.acceleration - startRot;
+        pivot.transform.position = Vector3.Lerp(pivot.transform.position, player.position, Time.deltaTime);
+        transform.parent = pivot.transform;
+
+        Vector3 acc = Vector3.zero;
+        float period = 0.0f;
+
+        foreach (AccelerationEvent evnt in Input.accelerationEvents)
+        {
+            acc += evnt.acceleration * evnt.deltaTime;
+            period += evnt.deltaTime;
+        }
+        if (period > 0)
+        {
+            acc *= 1.0f / period;
+        }
+
+
+        acceleration = -acc - startRot;
 
         smoothAcceleration = Vector3.Lerp(smoothAcceleration, acceleration, smoothSpeed * Time.deltaTime);
 
         float rotationInputX = Mathf.Abs(smoothAcceleration.x) * -Mathf.Sign(smoothAcceleration.x);
         float rotationInputZ = Mathf.Abs(smoothAcceleration.z) * -Mathf.Sign(smoothAcceleration.z);
+        Vector3 rotation = new Vector3(-rotationInputZ * 90, 0, -rotationInputX * 90);
 
-        Quaternion rotation = Quaternion.Euler(-rotationInputZ * 90, 0, -rotationInputX * 90);
+        if (rotation.x > maxAngle) rotation.x = maxAngle;
+        else if (rotation.x < -maxAngle) rotation.x = -maxAngle;
+        if (rotation.z > maxAngle) rotation.z = maxAngle;
+        else if (rotation.z < -maxAngle) rotation.z = -maxAngle;
 
-        pivot.transform.position = player.position;
+        Quaternion rotationAroundAxis = Quaternion.AngleAxis(rotation.x, player.right);
+        rotationAroundAxis *= Quaternion.AngleAxis(rotation.z, player.forward);
 
-        transform.parent = pivot.transform;
-        pivot.transform.rotation = rotation;
+        pivot.transform.rotation = Quaternion.Lerp(prevRot, rotationAroundAxis, Time.deltaTime);
+        prevRot = pivot.transform.rotation;
+
         transform.parent = null;
     }
 
@@ -79,16 +102,19 @@ public class Gyro : MonoBehaviour
         float dotMag = acceleration.magnitude * Vector3.up.magnitude;
         float angle = Mathf.Acos(dot / dotMag);
 
-        if (angle < 3)
+        if (angle < 5)
         {
             pivot.transform.position = Vector3.zero;
 
             player.transform.parent = pivot.transform;
+            camControl.transform.parent = pivot.transform;
             transform.parent = pivot.transform;
 
-            pivot.transform.position = -transform.position;
+            pivot.transform.position = Vector3.Lerp(pivot.transform.position, -transform.position, Time.deltaTime * resetTransformSpeed);
+            pivot.transform.rotation = Quaternion.Lerp(pivot.transform.rotation, Quaternion.identity, Time.deltaTime * resetTransformSpeed);
 
             player.transform.parent = null;
+            camControl.transform.parent = null;
             transform.parent = null;
         }
     }
