@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.EventSystems;
+﻿using UnityEngine;
 
-public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+public class Joystick : MonoBehaviour
 {
     public float Horizontal { get { return (snapX) ? SnapFloat(input.x, AxisOptions.Horizontal) : input.x; } }
     public float Vertical { get { return (snapY) ? SnapFloat(input.y, AxisOptions.Vertical) : input.y; } }
@@ -38,6 +35,10 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
     private Canvas canvas;
     private Camera cam;
 
+    [HideInInspector] public Touch touchInput;
+    [HideInInspector] public bool touched = false;
+    [HideInInspector] public bool touchEnd = false;
+
     private Vector2 input = Vector2.zero;
 
     protected virtual void Start()
@@ -57,12 +58,28 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
         handle.anchoredPosition = Vector2.zero;
     }
 
-    public virtual void OnPointerDown(PointerEventData eventData)
+    public void Update()
     {
-        OnDrag(eventData);
+        if (!touchEnd)
+        {
+            if (touchInput.phase == TouchPhase.Ended)
+            {
+                input = Vector2.zero;
+                handle.anchoredPosition = Vector2.zero;
+                touched = false;
+                touchEnd = true;
+            }
+        }
+
+        if (!touched) return;
+        else if (touchInput.phase == TouchPhase.Began || touchInput.phase == TouchPhase.Moved)
+        {
+            touchEnd = false;
+            OnDrag();
+        }
     }
 
-    public void OnDrag(PointerEventData eventData)
+    public void OnDrag()
     {
         cam = null;
         if (canvas.renderMode == RenderMode.ScreenSpaceCamera)
@@ -70,9 +87,10 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
 
         Vector2 position = RectTransformUtility.WorldToScreenPoint(cam, background.position);
         Vector2 radius = background.sizeDelta / 2;
-        input = (eventData.position - position) / (radius * canvas.scaleFactor);
+        input = (touchInput.position - position) / (radius * canvas.scaleFactor);
         FormatInput();
         HandleInput(input.magnitude, input.normalized, radius, cam);
+
         handle.anchoredPosition = input * radius * handleRange;
     }
 
@@ -83,8 +101,15 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
             if (magnitude > 1)
                 input = normalised;
         }
-        else
-            input = Vector2.zero;
+    }
+
+    public bool OnStick(Vector2 touchPos)
+    {
+        var position = RectTransformUtility.WorldToScreenPoint(cam, background.position);
+        var radius = background.sizeDelta / 2;
+        var input = (touchPos - position) / (radius * canvas.scaleFactor);
+
+        return input.magnitude < deadZone;
     }
 
     private void FormatInput()
@@ -127,12 +152,6 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
                 return -1;
         }
         return 0;
-    }
-
-    public virtual void OnPointerUp(PointerEventData eventData)
-    {
-        input = Vector2.zero;
-        handle.anchoredPosition = Vector2.zero;
     }
 
     protected Vector2 ScreenPointToAnchoredPosition(Vector2 screenPosition)

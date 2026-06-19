@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -7,26 +8,24 @@ public class CameraControl : MonoBehaviour
     //Automatic camControl
     public Transform camera;
     public float minDistance;
-
+    public float maxDistance;
+    
     //Drag Control
+    [Space]
+    public Joystick joystick;
     [Range(0f, 1f)] public float dragStart;
-    [Range(0f, 1f)] float dragMinLength;
 
-    private Vector3 pos1;
-    private Vector3 pos2;
+    private Vector3 curPos;
     private Vector3 prevPos;
-    private float dragDistance;
-    bool dragUse = false;
+    control touch1 = control.None;
+    control touch2 = control.None;
 
     private Player player;
     private GameManager gameManager;
-    private Vector2 screenSize;
 
     private void Start()
     {
         player = FindFirstObjectByType<Player>();
-        screenSize = new Vector2(Screen.width, Screen.height);
-        dragDistance = screenSize.y * dragMinLength;
     }
 
     private void Update()
@@ -37,40 +36,48 @@ public class CameraControl : MonoBehaviour
 
     private void FollowPlayer()
     {
-        transform.position = Vector3.Lerp(transform.position, player.position, Time.deltaTime);
-        camera.LookAt(player.position);
+        transform.position = player.transform.position;
 
         Vector3 offset = player.position - camera.position;
 
         float distance = offset.magnitude;
 
         if (distance < minDistance) transform.position = Vector3.Lerp(transform.position, transform.position - offset.normalized * (minDistance - distance), Time.deltaTime);
+        camera.LookAt(player.position);
     }
 
     private void ScreenInput()
     {
         int touchCount = Input.touchCount;
 
+        if (touch1 == control.None && touch2 != control.None)
+        {
+            touch1 = touch2;
+            touch2 = control.None;
+        }
+
         if (touchCount > 0)
         {
-            Vector2 touchInputPos = Input.GetTouch(0).position;
+            //joystick.touched = true;
+            //joystick.touchInput = Input.GetTouch(int);
+            //TouchDrag(Input.GetTouch(0), true);
 
-            bool inDeadZone = touchInputPos.x < screenSize.x / 4 && touchInputPos.y < screenSize.y / 3;
-
-            if (inDeadZone)
+            if (touch1 != control.Drag && (joystick.touched || joystick.OnStick(Input.GetTouch(0).position)))
             {
-                dragUse = false;
+                touch1 = control.Joystick;
 
-                if (touchCount > 1 && gameManager.GetControls() == GameControl.Joystick)
-                {
-                    dragUse = true;
-                    TouchDrag(Input.GetTouch(1), dragUse);
-                }
-                else transform.forward = Vector3.Lerp(transform.forward, player.forward, Time.deltaTime);
+                joystick.touched = true;
+                joystick.touchInput = Input.GetTouch(0);
+            } else if (touch1 != control.Joystick && !joystick.OnStick(Input.GetTouch(0).position))
+            {
+                touch1 = control.Drag;
+
+                TouchDrag(Input.GetTouch(0), true);
             }
-            else
+
+            if (touchCount == 1 && touch1 != control.Drag)
             {
-                TouchDrag(Input.GetTouch(0), dragUse);
+                transform.forward = Vector3.Lerp(transform.forward, player.forward, Time.deltaTime);
             }
         }
         else transform.forward = Vector3.Lerp(transform.forward, player.forward, Time.deltaTime);
@@ -80,7 +87,8 @@ public class CameraControl : MonoBehaviour
     {
         if (touchDrag.phase == TouchPhase.Ended || touchDrag.phase == TouchPhase.Canceled)
         {
-            dragUse = true;
+            if (touch1 == control.Drag) touch1 = control.None;
+            else if (touch2 == control.Drag) touch1 = control.None;
             return;
         }
 
@@ -92,18 +100,24 @@ public class CameraControl : MonoBehaviour
 
         if (touchDrag.phase == TouchPhase.Began)
         {
-            pos1 = touchDrag.position;
-            pos2 = touchDrag.position;
+            curPos = touchDrag.position;
             prevPos = touchDrag.position;
         }
         else if (touchDrag.phase == TouchPhase.Moved)
         {
-            pos2 = touchDrag.position;
+            curPos = touchDrag.position;
 
-            Vector3 rotation = -new Vector3(0, (prevPos.x - pos2.x), 0);
+            Vector3 rotation = -new Vector3(0, (prevPos.x - curPos.x), 0);
             transform.eulerAngles += rotation;
 
             prevPos = touchDrag.position;
         }
     }
+}
+
+enum control
+{
+    None,
+    Drag,
+    Joystick
 }

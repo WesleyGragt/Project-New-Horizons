@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         if (gameManager != null) Destroy(gameObject);
-        if (gameControl == null) gameControl = GameControl.Joystick;
     }
 
     public void SetControls(GameControl controls)
