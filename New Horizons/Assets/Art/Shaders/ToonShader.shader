@@ -5,10 +5,10 @@ Shader "Custom/ToonShader"
 		_MainTex("Texture", 2D) = "white" {}
 		_Normal("Normal Map", 2D) = "black" {}
 		_CellShadeDevide("Cell shade lighting", 2D) = "black" {}
-		_AmbientLight("Ambient Light", Color) = (0,0,0,1)
-		_Smoothness("Smoothness", float) = 1
+		_MainCol("Color", Color) = (1,1,1,1)
+		_Smoothness("Smoothness", float) = .5
 		_RimAmount("Rim Light Strength", float) = 0
-		_OutlineThickness("Outline Thickness", float) = .01
+		_OutlineThickness("Outline Thickness", float) = 0.00035
 		_OutlineColor("Outline Color", Color) = (0,0,0,1)
 	}
 	SubShader
@@ -43,7 +43,7 @@ Shader "Custom/ToonShader"
 			sampler2D _MainTex;
 			sampler2D _Normal;
 			sampler2D _CellShadeDevide;
-			fixed4 _AmbientLight;
+			fixed4 _MainCol;
 			float _Smoothness;
 			float _RimAmount;
 
@@ -70,9 +70,8 @@ Shader "Custom/ToonShader"
 				//albedo += rim * _LightColor0;
 
 				half4 cellLight = tex2D(_CellShadeDevide, fixed2(max(min(light.x, .95), .05), .5));
-				cellLight += _AmbientLight;
 
-				return albedo * cellLight;
+				return albedo * _MainCol * cellLight;
 			}
 			ENDCG
 		}
