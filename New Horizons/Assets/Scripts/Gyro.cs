@@ -23,6 +23,9 @@ public class Gyro : MonoBehaviour
 
     private Quaternion prevRot;
 
+    private Vector3 lowPassValue;
+    float LowPassFilterFactor = 1 / 60 / 1;
+
     private void Start()
     {
         player = FindFirstObjectByType<Player>();
@@ -45,7 +48,7 @@ public class Gyro : MonoBehaviour
         InputSystem.DisableDevice(Accelerometer.current);
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         pivot.transform.position = player.position;
 
@@ -72,7 +75,6 @@ public class Gyro : MonoBehaviour
         {
             acc *= 1.0f / period;
         }
-
 
         acceleration = -acc - startRot;
 
@@ -118,4 +120,11 @@ public class Gyro : MonoBehaviour
             transform.parent = null;
         }
     }
+
+    private Vector3 LowPassFilterAccelerometer()
+    {
+        lowPassValue = Vector3.Lerp(lowPassValue, Input.acceleration, LowPassFilterFactor);
+        return lowPassValue;
+    }
 }
+
