@@ -18,6 +18,8 @@ public class CatAPult : MonoBehaviour
     public HingeJoint joint;
     public float playerReachedDistance;
     public float flipBackDelay;
+    [Header("Components")]
+    public Rigidbody rigidbody;
     [Header("States")]
     public bool isAlerted;
     public bool isChasing;
@@ -60,7 +62,7 @@ public class CatAPult : MonoBehaviour
     public void SetAlert(bool alert)
     {
         isAlerted = alert;
-
+        curTarget = player.transform;
         if (alert)
         {
             //play alert effect
@@ -90,7 +92,7 @@ public class CatAPult : MonoBehaviour
     IEnumerator GoHome()
     {
         yield return new WaitForSeconds(homeDelay);
-
+        curTarget = home;
         isHoming = true;
         //start move anim
     }
@@ -105,6 +107,7 @@ public class CatAPult : MonoBehaviour
 
     void Flip()
     {
+        rigidbody.constraints = RigidbodyConstraints.FreezeAll;
         joint.useSpring = true;
         StartCoroutine(FlipBack());
     }
@@ -113,6 +116,7 @@ public class CatAPult : MonoBehaviour
     {
         yield return new WaitForSeconds(flipBackDelay);
         joint.useSpring = false;
+        rigidbody.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
 
     }
 }

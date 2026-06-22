@@ -11,7 +11,7 @@ public class ColliderTrigger : MonoBehaviour
         enterTriggerEvent.Invoke();
     }
 
-    public void exitTrigger()
+    public void ExitTrigger()
     {
         exitTriggerEvent.Invoke();
     }

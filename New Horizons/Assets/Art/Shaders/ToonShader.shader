@@ -16,69 +16,84 @@ Shader "Custom/ToonShader"
 		Tags {"RenderType" = "Opaque"}
 		Pass
 		{
-			Tags {"LightMode" = "UniversalForward"}
-			CGPROGRAM
+			Name "UniversalForward"
+			Tags { "LightMode" = "UniversalForward" }
+
+			HLSLPROGRAM
+
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#include "UnityCG.cginc"
-			#include "UnityLightingCommon.cginc" // NEEDED FOR LightColor0 !
+			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+			#pragma multi_compile _ _SHADOWS_SOFT
 
-			struct appdata
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+			struct Attributes
 			{
-				float4 vertex : POSITION;
-				float4 normal : NORMAL;
+				float4 positionOS : POSITION;
+				float3 normalOS : NORMAL;
 				float2 uv : TEXCOORD0;
 			};
 
-			struct v2f
+			struct Varyings
 			{
+				float4 positionCS : SV_POSITION;
 				float2 uv : TEXCOORD0;
-				float4 vertex : SV_POSITION;
-				float4 normal : NORMAL;
-				float4 world : TEXCOORD1;
-				float4 worldNormal : TEXCOORD2;
+				float3 positionWS : TEXCOORD1;
+				float3 normalWS : TEXCOORD2;
+				half4 shadowCoord : TEXCOORD3;
 			};
 
-			sampler2D _MainTex;
-			sampler2D _Normal;
-			sampler2D _CellShadeDevide;
-			fixed4 _MainCol;
-			float _Smoothness;
-			float _RimAmount;
+			TEXTURE2D(_MainTex);
+			SAMPLER(sampler_MainTex);
+			TEXTURE2D(_CellShadeDevide);
+			SAMPLER(sampler_CellShadeDevide);
+			float4 _MainCol;
 
-			v2f vert(appdata v)
+			Varyings vert(Attributes v)
 			{
-				v2f o;
-				o.vertex = UnityObjectToClipPos(v.vertex);
-				o.world = mul(UNITY_MATRIX_M, v.vertex);
-				o.worldNormal = normalize(mul(UNITY_MATRIX_M, float4(v.normal.xyz,0)));
-				o.normal = v.normal;
+				Varyings o;
+
+				VertexPositionInputs posInputs = GetVertexPositionInputs(v.positionOS.xyz);
+				VertexNormalInputs normalInputs = GetVertexNormalInputs(v.normalOS);
+
+				o.positionCS = posInputs.positionCS;
+				o.positionWS = posInputs.positionWS;
+				o.normalWS = normalInputs.normalWS;
 				o.uv = v.uv;
+
+				o.shadowCoord = TransformWorldToShadowCoord(posInputs.positionWS);
+
 				return o;
 			}
 
-			fixed4 frag(v2f i) : SV_Target
+			half4 frag(Varyings i) : SV_Target
 			{
-				//i.normal += 2 * tex2D(_Normal, i.uv) - 1;
-				fixed light = saturate(dot(i.worldNormal, _WorldSpaceLightPos0));
-				fixed specular = pow(saturate(dot(normalize(_WorldSpaceCameraPos - i.world), normalize(reflect(i.worldNormal, _WorldSpaceLightPos0)))), _Smoothness);
-				fixed rim = 1 - pow(saturate(dot(normalize(_WorldSpaceCameraPos), i.worldNormal)), _RimAmount);
-				fixed4 albedo = tex2D(_MainTex, i.uv);
-				albedo *= _LightColor0;
-				//albedo += specular * _LightColor0;
-				//albedo += rim * _LightColor0;
+				float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);
+				Light mainLight = GetMainLight(shadowCoord);
+				float3 normalWS = normalize(i.normalWS);
+				float NdotL = saturate(dot(normalWS, mainLight.direction));
+				float light = NdotL * mainLight.shadowAttenuation;
 
-				half4 cellLight = tex2D(_CellShadeDevide, fixed2(max(min(light.x, .95), .05), .5));
+				half4 albedo = SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,i.uv);
+				half4 cellLight = SAMPLE_TEXTURE2D(_CellShadeDevide,sampler_CellShadeDevide,float2(clamp(light, 0.05, 0.95), 0.5));
 
 				return albedo * _MainCol * cellLight;
+				//return i.shadowCoord;
 			}
-			ENDCG
+
+			ENDHLSL
 		}
+
+
 
 		//Outline
 		Pass
 		{
+			Tags {"RenderType" = "Transparent"}
 			Cull Front
 
 			CGPROGRAM
@@ -118,6 +133,10 @@ Shader "Custom/ToonShader"
 
 			fixed4 frag(v2f i) : SV_Target
 			{
+				if(_OutlineColor.a <= 0)
+				{
+					discard;
+				}
 				return _OutlineColor;
 			}
 			ENDCG
@@ -126,22 +145,24 @@ Shader "Custom/ToonShader"
 		// cast shadows:
 		Pass
 		{
-			Tags{ "LightMode" = "ShadowCaster" }
-			CGPROGRAM
-			#pragma vertex VSMain
-			#pragma fragment PSMain
+			Name "ShadowCaster"
+			Tags { "LightMode" = "ShadowCaster" }
 
-			float4 VSMain(float4 vertex:POSITION) : SV_POSITION
-			{
-				return UnityObjectToClipPos(vertex);
-			}
+			ZWrite On
+			ZTest LEqual
+			ColorMask 0
+			Cull Back
 
-			float4 PSMain(float4 vertex:SV_POSITION) : SV_TARGET
-			{
-				return 0;
-			}
+			HLSLPROGRAM
 
-			ENDCG
+			#pragma vertex ShadowPassVertex
+			#pragma fragment ShadowPassFragment
+
+			#pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+			#include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
+
+			ENDHLSL
 		}
 	}
 }
