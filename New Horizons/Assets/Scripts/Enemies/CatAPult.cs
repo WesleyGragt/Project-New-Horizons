@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Animations;
 
 public class CatAPult : MonoBehaviour
 {
@@ -20,10 +21,13 @@ public class CatAPult : MonoBehaviour
     public float flipBackDelay;
     [Header("Components")]
     public Rigidbody rigidbody;
+    [Header("Animation")]
+    public Animator animator;
     [Header("States")]
     public bool isAlerted;
     public bool isChasing;
     public bool isHoming;
+    public bool isFlipping;
 
     private void Start()
     {
@@ -37,11 +41,11 @@ public class CatAPult : MonoBehaviour
     private void Update()
     {
         Vector3 realTarget = new Vector3(curTarget.position.x, transform.position.y, curTarget.position.z);
-        if (isAlerted || isChasing || isHoming)
+        if ((isAlerted || isChasing || isHoming) && !isFlipping)
         {
             RotateTowards(realTarget);
         }
-        if (isChasing)
+        if (isChasing && !isFlipping)
         {
             transform.Translate(0,0,chaseSpeed * Time.deltaTime);
             if(Vector3.Distance(curTarget.position, transform.position) <= playerReachedDistance)
@@ -49,12 +53,13 @@ public class CatAPult : MonoBehaviour
                 Flip();
             }
         }
-        else if (isHoming)
+        else if (isHoming && !isFlipping)
         {
             transform.Translate(0,0,homeSpeed * Time.deltaTime);
             if (Vector3.Distance(curTarget.position, transform.position) <= targetReachedDistance)
             {
                 isHoming = false;
+                animator.SetBool("Home", false);
             }
         }
     }
@@ -66,8 +71,12 @@ public class CatAPult : MonoBehaviour
         if (alert)
         {
             //play alert effect
-            //play alert anim
+            animator.SetBool("Alert", true);
             //play alert sound
+        }
+        else
+        {
+            animator.SetBool("Alert", false);
         }
     }
 
@@ -78,13 +87,13 @@ public class CatAPult : MonoBehaviour
 
         if (chasing)
         {
-            //start move anim
+            animator.SetBool("Chase", true);
             //start move sound
             curTarget = player.transform;
         }
         else
         {
-            //stop move anim
+            animator.SetBool("Chase", false);
             StartCoroutine(GoHome());
         }
     }
@@ -94,7 +103,7 @@ public class CatAPult : MonoBehaviour
         yield return new WaitForSeconds(homeDelay);
         curTarget = home;
         isHoming = true;
-        //start move anim
+        animator.SetBool("Home", true);
     }
 
     void RotateTowards(Vector3 rotTarget)
@@ -108,7 +117,9 @@ public class CatAPult : MonoBehaviour
     void Flip()
     {
         rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        animator.enabled = false;
         joint.useSpring = true;
+        isFlipping = true;
         StartCoroutine(FlipBack());
     }
 
@@ -116,7 +127,15 @@ public class CatAPult : MonoBehaviour
     {
         yield return new WaitForSeconds(flipBackDelay);
         joint.useSpring = false;
+        isFlipping = false;
         rigidbody.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
+        StartCoroutine(FlipBackDone());
+    }
+
+    IEnumerator FlipBackDone()
+    {
+        yield return new WaitForSeconds(flipBackDelay * 2);
+        animator.enabled = true;
 
     }
 }

@@ -837,7 +837,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1165284838}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -860,6 +860,7 @@ GameObject:
   - component: {fileID: 1476114747}
   - component: {fileID: 1476114749}
   - component: {fileID: 1476114750}
+  - component: {fileID: 1476114751}
   m_Layer: 0
   m_Name: Cat-a-pult
   m_TagString: Untagged
@@ -930,9 +931,11 @@ MonoBehaviour:
   playerReachedDistance: 1.5
   flipBackDelay: 0.3
   rigidbody: {fileID: 1476114750}
+  animator: {fileID: 1476114751}
   isAlerted: 0
   isChasing: 0
   isHoming: 0
+  isFlipping: 0
 --- !u!54 &1476114750
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -960,6 +963,28 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 122
   m_CollisionDetection: 0
+--- !u!95 &1476114751
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476114746}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 7211047b16f62c84fbf2578270eabf5e, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1549880395
 GameObject:
   m_ObjectHideFlags: 0
@@ -1831,8 +1856,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2654413787988101165}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.50000006, y: 0.49999997, z: 0.50000006, w: 0.49999997}
-  m_LocalPosition: {x: 0, y: 0.28954136, z: 0.7176597}
+  m_LocalRotation: {x: -0.5000001, y: 0.5, z: 0.5000001, w: 0.5}
+  m_LocalPosition: {x: 0, y: 0.2895414, z: 0.7176597}
   m_LocalScale: {x: 50, y: 50, z: 50}
   m_ConstrainProportionsScale: 0
   m_Children: []
