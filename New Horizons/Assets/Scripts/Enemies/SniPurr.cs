@@ -3,22 +3,21 @@ using UnityEngine;
 public class SniPurr : MonoBehaviour
 {
     [Header("Movement")]
-    public float chaseSpeed;
-    public float homeSpeed;
     public float rotSpeed;
+    [Header("Shooting")]
+    public GameObject bullet;
+    public Transform bulletSpawnPoint;
+    public float shootCooldown;
+    float curShootCooldown;
+    public int bulletsPerBurst;
+    int curBurstAmount;
+    public float burstShotCooldown;
+    float curBurstShotCooldown;
     [Header("Targets")]
     public Transform home;
     //public Player player;
     public Transform player;
     Transform curTarget;
-    public float targetReachedDistance;
-    public float homeDelay;
-    [Header("Flipper")]
-    public HingeJoint joint;
-    public float playerReachedDistance;
-    public float flipBackDelay;
-    [Header("Components")]
-    public Rigidbody rigidbody;
     [Header("Animation")]
     public Animator animator;
     [Header("States")]
@@ -36,16 +35,31 @@ public class SniPurr : MonoBehaviour
 
     private void Update()
     {
-        if ((isAlerted) && !isShooting)
+        if (isAlerted && !isShooting)
         {
-            Vector3 realTarget = new Vector3(curTarget.position.x, transform.position.y, curTarget.position.z);
-            RotateTowards(realTarget);
+            RotateTowards(curTarget.position);
         }
         if (isShooting)
         {
-            Vector3 realTarget = new Vector3(curTarget.position.x, transform.position.y, curTarget.position.z);
-            RotateTowards(realTarget);
-            
+            //Vector3 predictedLoc = curTarget.position + (player.GetComponent<Rigidbody>().linearVelocity);
+            RotateTowards(curTarget.position);
+            curShootCooldown -= Time.deltaTime;
+            if(curShootCooldown < 0)
+            {
+                curBurstShotCooldown -= Time.deltaTime;
+                if(curBurstShotCooldown < 0)
+                {
+                    curBurstShotCooldown = burstShotCooldown;
+                    Instantiate(bullet, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
+                    curBurstAmount++;
+                    if(curBurstAmount >= bulletsPerBurst)
+                    {
+                        curBurstAmount = 0;
+                        curShootCooldown = shootCooldown;
+                    }
+                }
+            }
+
         }
     }
 
@@ -55,5 +69,39 @@ public class SniPurr : MonoBehaviour
         float singleStep = rotSpeed * Time.deltaTime;
         Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep, 0.0f);
         transform.rotation = Quaternion.LookRotation(newDirection);
+    }
+
+    public void SetAlert(bool alert)
+    {
+        isAlerted = alert;
+        curTarget = player.transform;
+        curShootCooldown = shootCooldown;
+        if (alert)
+        {
+            //play alert effect
+            //animator.SetBool("Alert", true);
+            //play alert sound
+        }
+        else
+        {
+            //animator.SetBool("Alert", false);
+        }
+    }
+
+    public void SetShooting(bool chasing)
+    {
+        isShooting = chasing;
+        SetAlert(!chasing);
+
+        if (chasing)
+        {
+            //animator.SetBool("Shooting", true);
+            //start move sound
+            curTarget = player.transform;
+        }
+        else
+        {
+            //animator.SetBool("Shooting", false);
+        }
     }
 }
