@@ -8,9 +8,9 @@ using UnityEngine.UI;
 public class CameraControl : MonoBehaviour
 {
     //Automatic camControl
-    public TextMeshProUGUI text;
     public Transform cam;
     public float minDistance;
+    public TextMeshProUGUI text;
     
     //Drag Control
     [Space]
@@ -21,6 +21,7 @@ public class CameraControl : MonoBehaviour
     private Vector3 prevPos;
     control touch1 = control.None;
     control touch2 = control.None;
+    bool invertTourch = false;
 
     private Player player;
 
@@ -31,16 +32,14 @@ public class CameraControl : MonoBehaviour
 
     private void Update()
     {
-        text.text = $"1: {touch1}, 2: {touch2}";
+        transform.position = player.position; //Vector3.Lerp(transform.position, player.position, Time.deltaTime * 5);
 
-        FollowPlayer();
+        //FollowPlayer();
         ScreenInput();
     }
 
     private void FollowPlayer()
     {
-        transform.position = player.position;
-
         Vector3 offset = player.position - cam.position;
 
         float distance = offset.magnitude;
@@ -59,6 +58,8 @@ public class CameraControl : MonoBehaviour
             touch2 = control.None;
         }
 
+        if (touch1 == control.Drag && touch2 == control.Joystick) invertTourch = true;
+
         if (joystick.touchEnd)
         {
             if (touch1 == control.Joystick) touch1 = control.None;
@@ -69,56 +70,68 @@ public class CameraControl : MonoBehaviour
         {
             if (!joystick.gameObject.activeSelf)
             {
-                TouchDrag(Input.GetTouch(0), true);
+                TouchDrag(Input.GetTouch(0));
                 return;
             }
-            if (touch1 != control.Drag && (joystick.touched || joystick.OnStick(Input.GetTouch(0).position)))
-            {
-                touch1 = control.Joystick;
 
-                joystick.touched = true;
-                joystick.touchInput = Input.GetTouch(0);
-            }
-            else if (touch1 != control.Joystick && !joystick.OnStick(Input.GetTouch(0).position))
+            if (touch1 != control.Joystick && touch2 != control.Drag && !joystick.OnStick(Input.GetTouch(0).position))
             {
                 touch1 = control.Drag;
 
-                TouchDrag(Input.GetTouch(0), true);
+                TouchDrag(Input.GetTouch(0));
             }
-            
-            if (touch1 != control.Joystick && touch2 != control.Drag && (joystick.touched || joystick.OnStick(Input.GetTouch(1).position)))
+            else if (touch1 != control.Drag && touch2 != control.Joystick && (joystick.touched || joystick.OnStick(Input.GetTouch(0).position)))
             {
-                touch2 = control.Joystick;
-
+                touch1 = control.Joystick;
+                
                 joystick.touched = true;
-                joystick.touchInput = Input.GetTouch(1);
-            } else if (touch1 != control.Drag && touch2 != control.Joystick && !joystick.OnStick(Input.GetTouch(1).position))
-            {
-                touch2 = control.Drag;
-
-                TouchDrag(Input.GetTouch(1), true);
+                
+                joystick.touchInput = Input.GetTouch(0);
             }
 
             if (touch1 != control.Drag && touch2 != control.Drag)
             {
-                transform.forward = Vector3.Lerp(transform.forward, player.forward, Time.deltaTime);
+                transform.forward = Vector3.Lerp(transform.forward, player.forwards, Time.deltaTime);
+            }
+
+            if (touchCount < 2) return;
+            if (touch1 != control.Joystick && touch2 != control.Drag && (joystick.touched || joystick.OnStick(Input.GetTouch(1).position)))
+            {
+                touch2 = control.Joystick;
+                
+                joystick.touched = true;
+                joystick.touchInput = Input.GetTouch(1);
+            }
+            else if (touch1 != control.Drag && touch2 != control.Joystick && !joystick.OnStick(Input.GetTouch(1).position))
+            {
+                touch2 = control.Drag;
+
+                if (invertTourch)
+                {
+                    joystick.touchInput = Input.GetTouch(1);
+                    TouchDrag(Input.GetTouch(0));
+                } else
+                {
+                    joystick.touchInput = Input.GetTouch(0);
+                    TouchDrag(Input.GetTouch(1));
+                }
             }
         }
-        else transform.forward = Vector3.Lerp(transform.forward, player.forward, Time.deltaTime);
+        else
+        {
+            transform.forward = Vector3.Lerp(transform.forward, player.forwards, Time.deltaTime);
+            touch1 = control.None;
+            touch2 = control.None;
+            invertTourch = false;
+        }
     }
 
-    private void TouchDrag(Touch touchDrag, bool draggable)
+    private void TouchDrag(Touch touchDrag)
     {
         if (touchDrag.phase == TouchPhase.Ended || touchDrag.phase == TouchPhase.Canceled)
         {
             if (touch1 == control.Drag) touch1 = control.None;
             else if (touch2 == control.Drag) touch2 = control.None;
-            return;
-        }
-
-        if (!draggable)
-        {
-            transform.forward = Vector3.Lerp(transform.forward, player.forward, Time.deltaTime);
             return;
         }
 
@@ -138,7 +151,6 @@ public class CameraControl : MonoBehaviour
             prevPos = touchDrag.position;
 
         }
-        transform.position = player.position;
     }
 }
 

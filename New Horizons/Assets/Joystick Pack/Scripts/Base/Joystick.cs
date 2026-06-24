@@ -41,6 +41,8 @@ public class Joystick : MonoBehaviour
 
     private Vector2 input = Vector2.zero;
 
+    private float MaxAngleDown = 10;
+
     protected virtual void Start()
     {
         HandleRange = handleRange;
@@ -88,6 +90,19 @@ public class Joystick : MonoBehaviour
         Vector2 position = RectTransformUtility.WorldToScreenPoint(cam, background.position);
         Vector2 radius = background.sizeDelta / 2;
         input = (touchInput.position - position) / (radius * canvas.scaleFactor);
+
+        if (Vector2.Angle(input, new Vector2(0, -1)) < MaxAngleDown)
+        {
+            if (input.x < 0)
+            {
+                input = Rotate(Vector2.down, -MaxAngleDown);
+            }
+            else if (input.x >= 0)
+            {
+                input = Rotate(Vector2.down, MaxAngleDown);
+            }
+        }
+
         FormatInput();
         HandleInput(input.magnitude, input.normalized, radius, cam);
 
@@ -163,6 +178,14 @@ public class Joystick : MonoBehaviour
             return localPoint - (background.anchorMax * baseRect.sizeDelta) + pivotOffset;
         }
         return Vector2.zero;
+    }
+
+    private Vector2 Rotate(Vector2 v, float degrees)
+    {
+        float rad = degrees * Mathf.Deg2Rad;
+        float cos = Mathf.Cos(rad);
+        float sin = Mathf.Sin(rad);
+        return new Vector2(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
     }
 }
 

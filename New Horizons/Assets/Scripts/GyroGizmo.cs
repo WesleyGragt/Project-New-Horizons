@@ -12,6 +12,6 @@ public class GyroGizmo : MonoBehaviour
     private void Update()
     {
         transform.position = player.position;
-        transform.forward = player.forward;
+        transform.forward = player.rotForwards;
     }
 }

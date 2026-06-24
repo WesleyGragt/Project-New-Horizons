@@ -1,14 +1,14 @@
-using System.Net.Security;
 using UnityEngine;
-using UnityEngine.XR;
 
 public class Player : MonoBehaviour
 {
     public float speed;
+    public Transform cam;
 
     [HideInInspector] public Vector3 position;
-    [HideInInspector] public Vector3 forward;
-    [HideInInspector] public Vector3 right;
+    [HideInInspector] public Vector3 forwards;
+    [HideInInspector] public Vector3 rotForwards;
+    [HideInInspector] public Vector3 rotRight;
     [HideInInspector] public Vector3 velocity;
     
     private Rigidbody rb;
@@ -17,40 +17,34 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
 
-        forward = transform.forward;
-        right = transform.right;
+        rotForwards = cam.transform.forward;
+        rotRight = cam.transform.right;
     }
 
     private void Update()
     {
+        position = transform.position;
+        velocity = Vector3.Lerp(velocity, rb.linearVelocity, Time.deltaTime);
+
         if (rb.linearVelocity == Vector3.zero)
         {
             rb.AddForce(Vector3.down);
         }
 
-        position = transform.position;
         
         if (rb.linearVelocity.magnitude > 0.1)
         {
-            forward = rb.linearVelocity;
-            forward.y = 0;
-            forward = forward.normalized;
+            forwards = rb.linearVelocity;
+            forwards.y = 0;
+            forwards = forwards.normalized;
+            rotForwards = new Vector3(cam.forward.x, 0, cam.forward.z).normalized;
 
-            right = -Vector3.Cross(forward, Vector3.up);
+            rotRight = -Vector3.Cross(rotForwards, Vector3.up);
         }
 
-        if (velocity.y < -.1f) rb.AddForce(velocity.normalized * speed);
-        if (velocity.y > 0) velocity *= 0.9f;
+        if (velocity.y < .1f) rb.AddForce(Vector3.down * speed);
+        else if (velocity.y > .1f && velocity.y < 3) velocity *= 0.9f;
+        if (velocity.y > 3) rb.AddForce(-velocity.normalized * speed);
 
-        velocity = rb.linearVelocity;
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawRay(transform.position, forward);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawRay(position, right);
     }
 }
