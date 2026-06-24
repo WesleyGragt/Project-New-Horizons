@@ -32,7 +32,7 @@ public class CameraControl : MonoBehaviour
 
     private void Update()
     {
-        transform.position = player.position; //Vector3.Lerp(transform.position, player.position, Time.deltaTime * 5);
+        //transform.position = player.position; //Vector3.Lerp(transform.position, player.position, Time.deltaTime * 5);
 
         //FollowPlayer();
         ScreenInput();
