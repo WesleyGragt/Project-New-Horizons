@@ -22,9 +22,6 @@ public class Gyro : MonoBehaviour
 
     private Quaternion prevRot;
 
-    private Vector3 lowPassValue;
-    float LowPassFilterFactor = 1 / 60 / 1;
-
     private void Start()
     {
         player = FindFirstObjectByType<Player>();
