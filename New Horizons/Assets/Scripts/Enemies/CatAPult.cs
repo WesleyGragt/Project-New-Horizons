@@ -10,8 +10,7 @@ public class CatAPult : MonoBehaviour
     public float rotSpeed;
     [Header("Targets")]
     public Transform home;
-    //public Player player;
-    public Transform player;
+    public Player player;
     Transform curTarget;
     public float targetReachedDistance;
     public float homeDelay;
@@ -33,7 +32,7 @@ public class CatAPult : MonoBehaviour
     {
         if(player == null)
         {
-            //player = GameObject.FindFirstObjectByType<Player>();
+            player = GameObject.FindFirstObjectByType<Player>();
         }
         curTarget = home;
     }

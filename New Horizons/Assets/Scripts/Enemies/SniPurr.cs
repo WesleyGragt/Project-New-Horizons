@@ -16,8 +16,7 @@ public class SniPurr : MonoBehaviour
     float curBurstShotCooldown;
     [Header("Targets")]
     public Transform home;
-    //public Player player;
-    public Transform player;
+    public Player player;
     Transform curTarget;
     [Header("Animation")]
     public Animator animator;
@@ -29,7 +28,7 @@ public class SniPurr : MonoBehaviour
     {
         if (player == null)
         {
-            //player = GameObject.FindFirstObjectByType<Player>();
+            player = GameObject.FindFirstObjectByType<Player>();
         }
         curTarget = home;
         curBurstShotCooldown = burstShotCooldown;
