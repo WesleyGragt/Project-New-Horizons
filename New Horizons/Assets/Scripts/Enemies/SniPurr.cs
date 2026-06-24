@@ -7,6 +7,7 @@ public class SniPurr : MonoBehaviour
     [Header("Shooting")]
     public GameObject bullet;
     public Transform bulletSpawnPoint;
+    public float shootAnimStartOffset;
     public float shootCooldown;
     float curShootCooldown;
     public int bulletsPerBurst;
@@ -31,6 +32,7 @@ public class SniPurr : MonoBehaviour
             //player = GameObject.FindFirstObjectByType<Player>();
         }
         curTarget = home;
+        curBurstShotCooldown = burstShotCooldown;
     }
 
     private void Update()
@@ -44,6 +46,10 @@ public class SniPurr : MonoBehaviour
             //Vector3 predictedLoc = curTarget.position + (player.GetComponent<Rigidbody>().linearVelocity);
             RotateTowards(curTarget.position);
             curShootCooldown -= Time.deltaTime;
+            if(curShootCooldown < shootAnimStartOffset)
+            {
+                animator.SetBool("Shooting", true);
+            }
             if(curShootCooldown < 0)
             {
                 curBurstShotCooldown -= Time.deltaTime;
@@ -56,6 +62,7 @@ public class SniPurr : MonoBehaviour
                     {
                         curBurstAmount = 0;
                         curShootCooldown = shootCooldown;
+                        animator.SetBool("Shooting", false);
                     }
                 }
             }
@@ -79,12 +86,11 @@ public class SniPurr : MonoBehaviour
         if (alert)
         {
             //play alert effect
-            //animator.SetBool("Alert", true);
+            animator.SetTrigger("Alerted");
             //play alert sound
         }
         else
         {
-            //animator.SetBool("Alert", false);
         }
     }
 
