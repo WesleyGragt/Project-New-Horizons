@@ -7,6 +7,13 @@ TagManager:
   - ColliderTrigger
   - Water
   - UI
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - BlockView
+  - Water
+  - UI
   - 
   - 
   - 

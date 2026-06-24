@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Rotate : MonoBehaviour
 {
-    public float maxAngle = 10f;
+    public float maxAngle = 22.5f;
     public Joystick joystick;
     [Space]
     public float updateSpeed = 1f;
@@ -64,7 +64,7 @@ public class Rotate : MonoBehaviour
         player.transform.parent = pivot.transform;
         transform.parent = pivot.transform;
 
-        //pivot.transform.position = Vector3.Lerp(pivot.transform.position, -transform.position, Time.deltaTime * resetTransformSpeed);
+        pivot.transform.position = Vector3.Lerp(pivot.transform.position, -transform.position, Time.deltaTime * resetTransformSpeed);
         pivot.transform.rotation = Quaternion.Lerp(pivot.transform.rotation, Quaternion.identity, Time.deltaTime * resetTransformSpeed);
 
         player.transform.parent = null;

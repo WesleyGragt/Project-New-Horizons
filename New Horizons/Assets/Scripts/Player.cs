@@ -23,8 +23,10 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+
         position = transform.position;
         velocity = Vector3.Lerp(velocity, rb.linearVelocity, Time.deltaTime);
+        rb.maxLinearVelocity = 100f;
 
         if (rb.linearVelocity == Vector3.zero)
         {
@@ -42,7 +44,7 @@ public class Player : MonoBehaviour
             rotRight = -Vector3.Cross(rotForwards, Vector3.up);
         }
 
-        if (velocity.y < .1f) rb.AddForce(Vector3.down * speed);
+        if (velocity.y < .1f) rb.AddForce(Vector3.down * speed/2);
         else if (velocity.y > .1f && velocity.y < 3) velocity *= 0.9f;
         if (velocity.y > 3) rb.AddForce(-velocity.normalized * speed);
 
