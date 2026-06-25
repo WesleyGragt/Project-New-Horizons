@@ -22,10 +22,19 @@ public class Gyro : MonoBehaviour
 
     private Quaternion prevRot;
 
+    float accelerometerUpdateInterval = 1.0f / 60.0f;
+    float lowPassKernelWidthInSeconds = 1.0f;
+
+    private float lowPassFilterFactor;
+    private Vector3 lowPassValue = Vector3.zero;
+
     private void Start()
     {
         player = FindFirstObjectByType<Player>();
         pivot = new GameObject("GyroPivot");
+
+        lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
+        lowPassValue = Input.acceleration;
     }
 
     private void OnEnable()
@@ -64,7 +73,7 @@ public class Gyro : MonoBehaviour
 
         foreach (AccelerationEvent evnt in Input.accelerationEvents)
         {
-            acc += evnt.acceleration * evnt.deltaTime;
+            acc += LowPassFilterAccelerometer(evnt.acceleration);
             period += evnt.deltaTime;
         }
         if (period > 0)
@@ -92,6 +101,12 @@ public class Gyro : MonoBehaviour
         prevRot = pivot.transform.rotation;
 
         transform.parent = null;
+    }
+
+    Vector3 LowPassFilterAccelerometer(Vector3 prevValue)
+    {
+        Vector3 newValue = Vector3.Lerp(prevValue, Input.acceleration, lowPassFilterFactor);
+        return newValue;
     }
 
     private void ResetDisplacement()
