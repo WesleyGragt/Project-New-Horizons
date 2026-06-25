@@ -863,7 +863,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4018276574065035417}
   m_Layer: 0
-  m_Name: Cat-a-pult Home 1
+  m_Name: Cat-a-pult Home
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
