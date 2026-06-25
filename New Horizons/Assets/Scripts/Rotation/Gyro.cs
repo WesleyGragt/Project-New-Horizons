@@ -9,8 +9,8 @@ public class Gyro : MonoBehaviour
     //Check out sensor fusion to combine both!!!!
     public float maxAngle = 45f;
     public float smoothSpeed = 1f;
-    public float updateSpeed = 1f;
-    public float resetTransformSpeed = 1f;
+    public float updateSpeed = 2f;
+    public float resetTransformSpeed = 3f;
 
     private Vector3 smoothAcceleration = Vector3.zero;
 
@@ -55,7 +55,7 @@ public class Gyro : MonoBehaviour
     {
         if (!SystemInfo.supportsAccelerometer) return;
 
-        pivot.transform.position = player.position;
+        pivot.transform.position = player.transform.position;
 
         AcceleroMeter();
         //ResetDisplacement(); Fucked with camera. For this we will hold a council of me, myself and I. The council has decided to execute order 66.
@@ -65,7 +65,7 @@ public class Gyro : MonoBehaviour
     {
         if (startRot == Vector3.zero) startRot = -Input.acceleration;
 
-        pivot.transform.position = player.position; //Vector3.Lerp(pivot.transform.position, player.position, Time.deltaTime);
+        pivot.transform.position = player.transform.position; //Vector3.Lerp(pivot.transform.position, player.position, Time.deltaTime);
         transform.parent = pivot.transform;
 
         Vector3 acc = Vector3.zero;
@@ -73,7 +73,7 @@ public class Gyro : MonoBehaviour
 
         foreach (AccelerationEvent evnt in Input.accelerationEvents)
         {
-            acc += LowPassFilterAccelerometer(evnt.acceleration);
+            acc += evnt.acceleration * evnt.deltaTime;
             period += evnt.deltaTime;
         }
         if (period > 0)
@@ -109,6 +109,10 @@ public class Gyro : MonoBehaviour
         return newValue;
     }
 
+    public void SetRot()
+    {
+        startRot = -Input.acceleration;
+    }
     private void ResetDisplacement()
     {
         float dot = (acceleration.x * Vector3.up.x) + (acceleration.y * Vector3.up.y) + (acceleration.z * Vector3.up.z);

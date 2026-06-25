@@ -5,7 +5,6 @@ public class Player : MonoBehaviour
     public float speed;
     public Transform cam;
 
-    [HideInInspector] public Vector3 position;
     [HideInInspector] public Vector3 forwards;
     [HideInInspector] public Vector3 rotForwards;
     [HideInInspector] public Vector3 rotRight;
@@ -37,7 +36,6 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        position = transform.position;
         velocity = rb.linearVelocity;
 
         if (rb.linearVelocity == Vector3.zero)

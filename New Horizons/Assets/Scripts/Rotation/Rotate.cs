@@ -5,8 +5,8 @@ public class Rotate : MonoBehaviour
     public float maxAngle = 22.5f;
     public Joystick joystick;
     [Space]
-    public float updateSpeed = 1f;
-    public float resetTransformSpeed = 1f;
+    public float updateSpeed = 2f;
+    public float resetTransformSpeed = 3f;
 
     private Player player;
     private GameObject pivot;
@@ -41,7 +41,7 @@ public class Rotate : MonoBehaviour
 
     private void JoystickRotate()
     {
-        pivot.transform.position = player.position;
+        pivot.transform.position = player.transform.position;
 
         transform.parent = pivot.transform;
 
