@@ -7,15 +7,16 @@ public class Gyro : MonoBehaviour
 {
     //If time, combine AcceleroMeter with Gyroscope
     //Check out sensor fusion to combine both!!!!
+    public GameObject pivot;
+    [Range(0, 1)] public float sensitivity = 1f;
     public float maxAngle = 45f;
     public float smoothSpeed = 1f;
-    public float updateSpeed = 1f;
-    public float resetTransformSpeed = 1f;
+    public float updateSpeed = 2f;
+    public float resetTransformSpeed = 3f;
 
     private Vector3 smoothAcceleration = Vector3.zero;
 
     private Player player;
-    private GameObject pivot;
 
     private Vector3 startRot = Vector3.zero;
     private Vector3 acceleration;
@@ -28,10 +29,10 @@ public class Gyro : MonoBehaviour
     private float lowPassFilterFactor;
     private Vector3 lowPassValue = Vector3.zero;
 
+    private bool resetRot = false;
     private void Start()
     {
         player = FindFirstObjectByType<Player>();
-        pivot = new GameObject("GyroPivot");
 
         lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
         lowPassValue = Input.acceleration;
@@ -55,9 +56,11 @@ public class Gyro : MonoBehaviour
     {
         if (!SystemInfo.supportsAccelerometer) return;
 
-        pivot.transform.position = player.position;
+        pivot.transform.position = player.transform.position;
 
         AcceleroMeter();
+        if (resetRot) ResetRot();
+        Debug.Log(resetRot);
         //ResetDisplacement(); Fucked with camera. For this we will hold a council of me, myself and I. The council has decided to execute order 66.
     }
 
@@ -65,7 +68,7 @@ public class Gyro : MonoBehaviour
     {
         if (startRot == Vector3.zero) startRot = -Input.acceleration;
 
-        pivot.transform.position = player.position; //Vector3.Lerp(pivot.transform.position, player.position, Time.deltaTime);
+        pivot.transform.position = player.transform.position; //Vector3.Lerp(pivot.transform.position, player.position, Time.deltaTime);
         transform.parent = pivot.transform;
 
         Vector3 acc = Vector3.zero;
@@ -73,7 +76,7 @@ public class Gyro : MonoBehaviour
 
         foreach (AccelerationEvent evnt in Input.accelerationEvents)
         {
-            acc += LowPassFilterAccelerometer(evnt.acceleration);
+            acc += evnt.acceleration * evnt.deltaTime;
             period += evnt.deltaTime;
         }
         if (period > 0)
@@ -85,8 +88,8 @@ public class Gyro : MonoBehaviour
 
         smoothAcceleration = Vector3.Lerp(smoothAcceleration, acceleration, smoothSpeed * Time.deltaTime);
 
-        float rotationInputX = Mathf.Abs(smoothAcceleration.x) * -Mathf.Sign(smoothAcceleration.x);
-        float rotationInputZ = Mathf.Abs(smoothAcceleration.z) * -Mathf.Sign(smoothAcceleration.z);
+        float rotationInputX = Mathf.Abs(smoothAcceleration.x * sensitivity) * -Mathf.Sign(smoothAcceleration.x * sensitivity);
+        float rotationInputZ = Mathf.Abs(smoothAcceleration.z * sensitivity) * -Mathf.Sign(smoothAcceleration.z * sensitivity);
         Vector3 rotation = new Vector3(-rotationInputZ * 90, 0, -rotationInputX * 90);
 
         if (rotation.x > maxAngle) rotation.x = maxAngle;
@@ -109,25 +112,35 @@ public class Gyro : MonoBehaviour
         return newValue;
     }
 
-    private void ResetDisplacement()
+    public void SetRot()
     {
-        float dot = (acceleration.x * Vector3.up.x) + (acceleration.y * Vector3.up.y) + (acceleration.z * Vector3.up.z);
-        float dotMag = acceleration.magnitude * Vector3.up.magnitude;
-        float angle = Mathf.Acos(dot / dotMag);
+        startRot = -Input.acceleration;
+    }
 
-        if (angle < 10)
-        {
-            pivot.transform.position = Vector3.zero;
+    public void SetSensitivity(float gyroSense)
+    {
+        sensitivity = gyroSense;
+    }
 
-            player.transform.parent = pivot.transform;
-            transform.parent = pivot.transform;
+    public void zeroRotation()
+    {
+        resetRot = true;
+    }
+    private void ResetRot()
+    {
+        pivot.transform.position = Vector3.zero;
 
-            //pivot.transform.position = Vector3.Lerp(pivot.transform.position, -transform.position, Time.deltaTime * resetTransformSpeed);
-            pivot.transform.rotation = Quaternion.Lerp(pivot.transform.rotation, Quaternion.identity, Time.deltaTime * resetTransformSpeed);
+        player.transform.parent = pivot.transform;
+        transform.parent = pivot.transform;
 
-            player.transform.parent = null;
-            transform.parent = null;
-        }
+        //pivot.transform.position = Vector3.Lerp(pivot.transform.position, -transform.position, Time.deltaTime * resetTransformSpeed);
+        //pivot.transform.rotation = Quaternion.Lerp(pivot.transform.rotation, Quaternion.identity, Time.deltaTime * resetTransformSpeed);
+        pivot.transform.rotation = Quaternion.identity;
+
+        if (pivot.transform.eulerAngles.magnitude < 0.001f) resetRot = false;
+
+        player.transform.parent = null;
+        transform.parent = null;
     }
 }
 

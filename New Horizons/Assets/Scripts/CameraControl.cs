@@ -32,7 +32,7 @@ public class CameraControl : MonoBehaviour
 
     private void Update()
     {
-        //transform.position = player.position; //Vector3.Lerp(transform.position, player.position, Time.deltaTime * 5);
+        transform.position = player.transform.position; //Vector3.Lerp(transform.position, player.position, Time.deltaTime * 5);
 
         //FollowPlayer();
         ScreenInput();
@@ -40,12 +40,12 @@ public class CameraControl : MonoBehaviour
 
     private void FollowPlayer()
     {
-        Vector3 offset = player.position - cam.position;
+        Vector3 offset = player.transform.position - cam.position;
 
         float distance = offset.magnitude;
 
         if (distance < minDistance) transform.position = Vector3.Lerp(transform.position, transform.position - offset.normalized * (minDistance - distance), Time.deltaTime);
-        cam.LookAt(player.position);
+        cam.LookAt(player.transform.position);
     }
 
     private void ScreenInput()

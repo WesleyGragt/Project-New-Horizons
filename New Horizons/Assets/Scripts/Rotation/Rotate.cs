@@ -1,17 +1,20 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Rotate : MonoBehaviour
 {
+    public GameObject pivot;
     public float maxAngle = 22.5f;
     public Joystick joystick;
     [Space]
-    public float updateSpeed = 1f;
-    public float resetTransformSpeed = 1f;
+    public float updateSpeed = 2f;
+    public float resetTransformSpeed = 3f;
 
     private Player player;
-    private GameObject pivot;
     
     private Quaternion prevRot;
+
+    private bool resetRot = false;
 
     private void OnEnable()
     {
@@ -21,27 +24,23 @@ public class Rotate : MonoBehaviour
     private void OnDisable()
     {
         joystick.gameObject.SetActive(false);
+        ResetRot();
     }
 
     private void Start()
     {
         player = FindFirstObjectByType<Player>();
-        pivot = new GameObject("pivot");
     }
 
     void Update()
     {
-        Vector2 dir = joystick.Direction * maxAngle;
-        if (dir.magnitude <= 0.1f)
-        {
-            ResetRot();
-        }
+        if (resetRot) ResetRot();
         else JoystickRotate();
     }
 
     private void JoystickRotate()
     {
-        pivot.transform.position = player.position;
+        pivot.transform.position = player.transform.position;
 
         transform.parent = pivot.transform;
 
@@ -57,6 +56,11 @@ public class Rotate : MonoBehaviour
         transform.parent = null;
     }
 
+    public void zeroRotation()
+    {
+        resetRot = true;
+    }
+
     private void ResetRot()
     {
         pivot.transform.position = Vector3.zero;
@@ -66,6 +70,8 @@ public class Rotate : MonoBehaviour
 
         //pivot.transform.position = Vector3.Lerp(pivot.transform.position, -transform.position, Time.deltaTime * resetTransformSpeed);
         pivot.transform.rotation = Quaternion.Lerp(pivot.transform.rotation, Quaternion.identity, Time.deltaTime * resetTransformSpeed);
+
+        if (pivot.transform.eulerAngles.magnitude < 0.001f) resetRot = false;
 
         player.transform.parent = null;
         transform.parent = null;
