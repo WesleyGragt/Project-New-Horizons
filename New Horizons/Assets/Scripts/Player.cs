@@ -14,6 +14,9 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
         rb = GetComponent<Rigidbody>();
 
         rotForwards = cam.transform.forward;

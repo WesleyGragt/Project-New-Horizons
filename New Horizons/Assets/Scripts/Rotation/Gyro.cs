@@ -7,6 +7,8 @@ public class Gyro : MonoBehaviour
 {
     //If time, combine AcceleroMeter with Gyroscope
     //Check out sensor fusion to combine both!!!!
+    public GameObject pivot;
+    [Range(0, 1)] public float sensitivity = 1f;
     public float maxAngle = 45f;
     public float smoothSpeed = 1f;
     public float updateSpeed = 2f;
@@ -15,7 +17,6 @@ public class Gyro : MonoBehaviour
     private Vector3 smoothAcceleration = Vector3.zero;
 
     private Player player;
-    private GameObject pivot;
 
     private Vector3 startRot = Vector3.zero;
     private Vector3 acceleration;
@@ -28,10 +29,10 @@ public class Gyro : MonoBehaviour
     private float lowPassFilterFactor;
     private Vector3 lowPassValue = Vector3.zero;
 
+    private bool resetRot = false;
     private void Start()
     {
         player = FindFirstObjectByType<Player>();
-        pivot = new GameObject("GyroPivot");
 
         lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
         lowPassValue = Input.acceleration;
@@ -58,6 +59,8 @@ public class Gyro : MonoBehaviour
         pivot.transform.position = player.transform.position;
 
         AcceleroMeter();
+        if (resetRot) ResetRot();
+        Debug.Log(resetRot);
         //ResetDisplacement(); Fucked with camera. For this we will hold a council of me, myself and I. The council has decided to execute order 66.
     }
 
@@ -85,8 +88,8 @@ public class Gyro : MonoBehaviour
 
         smoothAcceleration = Vector3.Lerp(smoothAcceleration, acceleration, smoothSpeed * Time.deltaTime);
 
-        float rotationInputX = Mathf.Abs(smoothAcceleration.x) * -Mathf.Sign(smoothAcceleration.x);
-        float rotationInputZ = Mathf.Abs(smoothAcceleration.z) * -Mathf.Sign(smoothAcceleration.z);
+        float rotationInputX = Mathf.Abs(smoothAcceleration.x * sensitivity) * -Mathf.Sign(smoothAcceleration.x * sensitivity);
+        float rotationInputZ = Mathf.Abs(smoothAcceleration.z * sensitivity) * -Mathf.Sign(smoothAcceleration.z * sensitivity);
         Vector3 rotation = new Vector3(-rotationInputZ * 90, 0, -rotationInputX * 90);
 
         if (rotation.x > maxAngle) rotation.x = maxAngle;
@@ -113,25 +116,31 @@ public class Gyro : MonoBehaviour
     {
         startRot = -Input.acceleration;
     }
-    private void ResetDisplacement()
+
+    public void SetSensitivity(float gyroSense)
     {
-        float dot = (acceleration.x * Vector3.up.x) + (acceleration.y * Vector3.up.y) + (acceleration.z * Vector3.up.z);
-        float dotMag = acceleration.magnitude * Vector3.up.magnitude;
-        float angle = Mathf.Acos(dot / dotMag);
+        sensitivity = gyroSense;
+    }
 
-        if (angle < 10)
-        {
-            pivot.transform.position = Vector3.zero;
+    public void zeroRotation()
+    {
+        resetRot = true;
+    }
+    private void ResetRot()
+    {
+        pivot.transform.position = Vector3.zero;
 
-            player.transform.parent = pivot.transform;
-            transform.parent = pivot.transform;
+        player.transform.parent = pivot.transform;
+        transform.parent = pivot.transform;
 
-            //pivot.transform.position = Vector3.Lerp(pivot.transform.position, -transform.position, Time.deltaTime * resetTransformSpeed);
-            pivot.transform.rotation = Quaternion.Lerp(pivot.transform.rotation, Quaternion.identity, Time.deltaTime * resetTransformSpeed);
+        //pivot.transform.position = Vector3.Lerp(pivot.transform.position, -transform.position, Time.deltaTime * resetTransformSpeed);
+        //pivot.transform.rotation = Quaternion.Lerp(pivot.transform.rotation, Quaternion.identity, Time.deltaTime * resetTransformSpeed);
+        pivot.transform.rotation = Quaternion.identity;
 
-            player.transform.parent = null;
-            transform.parent = null;
-        }
+        if (pivot.transform.eulerAngles.magnitude < 0.001f) resetRot = false;
+
+        player.transform.parent = null;
+        transform.parent = null;
     }
 }
 
