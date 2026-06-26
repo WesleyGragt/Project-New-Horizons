@@ -5,8 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - ColliderTrigger
-  - Water
-  - UI
+  - Pinpaw
   layers:
   - Default
   - TransparentFX
