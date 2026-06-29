@@ -88,9 +88,9 @@ public class Gyro : MonoBehaviour
 
         smoothAcceleration = Vector3.Lerp(smoothAcceleration, acceleration, smoothSpeed * Time.deltaTime);
 
-        float rotationInputX = Mathf.Abs(smoothAcceleration.x * sensitivity) * -Mathf.Sign(smoothAcceleration.x * sensitivity);
-        float rotationInputZ = Mathf.Abs(smoothAcceleration.z * sensitivity) * -Mathf.Sign(smoothAcceleration.z * sensitivity);
-        Vector3 rotation = new Vector3(-rotationInputZ * 90, 0, -rotationInputX * 90);
+        float rotationInputX = Mathf.Abs(smoothAcceleration.x) * -Mathf.Sign(smoothAcceleration.x);
+        float rotationInputZ = Mathf.Abs(smoothAcceleration.z) * -Mathf.Sign(smoothAcceleration.z);
+        Vector3 rotation = new Vector3(-rotationInputZ * 90, 0, -rotationInputX * 90) * sensitivity;
 
         if (rotation.x > maxAngle) rotation.x = maxAngle;
         else if (rotation.x < -maxAngle) rotation.x = -maxAngle;
@@ -141,6 +141,14 @@ public class Gyro : MonoBehaviour
 
         player.transform.parent = null;
         transform.parent = null;
+    }
+
+    private Vector3 Sensitivity(Vector3 acceleration)
+    {
+        Vector3 cross = Vector3.Cross(startRot, acceleration).normalized;
+        float angle = Vector3.Angle(startRot, acceleration) * sensitivity;
+
+        return Quaternion.AngleAxis(angle, cross).eulerAngles;
     }
 }
 
