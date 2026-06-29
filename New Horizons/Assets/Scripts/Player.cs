@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     [HideInInspector] public Vector3 rotForwards;
     [HideInInspector] public Vector3 rotRight;
     [HideInInspector] public Vector3 velocity;
+    [HideInInspector] public float maxVelocity;
     
     private Rigidbody rb;
 
@@ -22,6 +23,7 @@ public class Player : MonoBehaviour
         rotForwards = cam.transform.forward;
         rotRight = cam.transform.right;
         rb.maxLinearVelocity = 100f;
+        maxVelocity = 100f;
     }
 
     private void Update()
