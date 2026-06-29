@@ -16,8 +16,11 @@ public class SniPurr : MonoBehaviour
     float curBurstShotCooldown;
     [Header("Targets")]
     public Transform home;
-    public Player player;
+    public Transform player;
     Transform curTarget;
+    [Header("Effects")]
+    public ParticleSystem suckParticle;
+    public ParticleSystem shootParticle;
     [Header("Animation")]
     public Animator animator;
     [Header("States")]
@@ -28,7 +31,7 @@ public class SniPurr : MonoBehaviour
     {
         if (player == null)
         {
-            player = GameObject.FindFirstObjectByType<Player>();
+            player = GameObject.FindFirstObjectByType<Player>().transform;
         }
         curTarget = home;
         curBurstShotCooldown = burstShotCooldown;
@@ -47,7 +50,12 @@ public class SniPurr : MonoBehaviour
             curShootCooldown -= Time.deltaTime;
             if(curShootCooldown < shootAnimStartOffset)
             {
-                animator.SetBool("Shooting", true);
+                if(animator == null)
+                {
+                    animator = GetComponent<Animator>();
+                }
+                animator.SetBool("IsShooting", true);
+                suckParticle.Play();
             }
             if(curShootCooldown < 0)
             {
@@ -56,12 +64,13 @@ public class SniPurr : MonoBehaviour
                 {
                     curBurstShotCooldown = burstShotCooldown;
                     Instantiate(bullet, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
+                    shootParticle.Play();
                     curBurstAmount++;
                     if(curBurstAmount >= bulletsPerBurst)
                     {
                         curBurstAmount = 0;
                         curShootCooldown = shootCooldown;
-                        animator.SetBool("Shooting", false);
+                        animator.SetBool("IsShooting", false);
                     }
                 }
             }
@@ -93,20 +102,17 @@ public class SniPurr : MonoBehaviour
         }
     }
 
-    public void SetShooting(bool chasing)
+    public void SetShooting(bool shooting)
     {
-        isShooting = chasing;
-        SetAlert(!chasing);
+        isShooting = shooting;
+        SetAlert(!shooting);
 
-        if (chasing)
+        if (shooting)
         {
-            //animator.SetBool("Shooting", true);
-            //start move sound
             curTarget = player.transform;
         }
         else
         {
-            //animator.SetBool("Shooting", false);
         }
     }
 }
