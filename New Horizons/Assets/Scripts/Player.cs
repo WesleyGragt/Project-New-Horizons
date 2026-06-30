@@ -14,8 +14,7 @@ public class Player : MonoBehaviour
     [HideInInspector] public Vector3 rotRight;
     [HideInInspector] public Vector3 velocity;
     [HideInInspector] public float maxVelocity;
-
-    private bool playRollSound = false;
+    
 
     private void Start()
     {
