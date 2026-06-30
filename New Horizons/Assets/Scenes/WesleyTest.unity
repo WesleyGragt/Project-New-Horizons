@@ -6315,7 +6315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55c14db89761cab409f68bbec6bcce53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  player: {fileID: 302967574}
   pivot: {fileID: 863619820}
   maxAngle: 22.5
   joystick: {fileID: 557083941}
@@ -6333,7 +6333,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a0ebe4d40b4f244a95e451f61fee41f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  player: {fileID: 302967574}
   pivot: {fileID: 863619820}
   sensitivity: 0.9
   maxAngle: 45
