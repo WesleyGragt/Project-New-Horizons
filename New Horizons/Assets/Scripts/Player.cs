@@ -8,6 +8,7 @@ public class Player : MonoBehaviour
     [SerializeField] private AudioSource bonkAudio;
     [SerializeField] private AudioSource rollingAudio;
     [SerializeField] private GameObject bumbParticle;
+    [SerializeField] private GameObject starParticle;
     public float speed;
     public float maxVelocity = 10f;
     public float respawnTime = 2f;
@@ -23,9 +24,6 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-
         if (rb == null) rb = GetComponent<Rigidbody>();
 
         rotForwards = cam.transform.forward;
@@ -74,8 +72,10 @@ public class Player : MonoBehaviour
     {
         if (rb.linearVelocity.magnitude < velocity.magnitude * .95)
         {
-            var particle = Instantiate(bumbParticle, collision.contacts[0].point, Quaternion.identity);
-            Destroy(particle, 3);
+            var puffParticle = Instantiate(bumbParticle, collision.contacts[0].point, Quaternion.identity);
+            var startParticle = Instantiate(starParticle, collision.contacts[0].point, Quaternion.identity);
+            Destroy(puffParticle, 3);
+            Destroy(startParticle, 3);
 
             bonkAudio.Play();
         }

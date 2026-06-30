@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/MainMenuNewHorizons/MainMenu.unity
+    guid: 6ada31365a3ec5546a0049de63b51a97
+  - enabled: 1
     path: Assets/Scenes/WesleyTest.unity
     guid: 814a8df67a249d84cb91e9b2873300ca
   m_configObjects:

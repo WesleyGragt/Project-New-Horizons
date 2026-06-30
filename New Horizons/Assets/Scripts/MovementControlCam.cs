@@ -15,10 +15,9 @@ public class MovementControlCam : MonoBehaviour
 
     private Vector3 curPos;
     private Vector3 prevPos;
-    control touch1 = control.None;
-    control touch2 = control.None;
+    Control touch1 = Control.None;
+    Control touch2 = Control.None;
     bool invertTourch = false;
-
 
     private void Start()
     {
@@ -47,18 +46,18 @@ public class MovementControlCam : MonoBehaviour
     {
         int touchCount = Input.touchCount;
 
-        if (touch1 == control.None && touch2 != control.None)
+        if (touch1 == Control.None && touch2 != Control.None)
         {
             touch1 = touch2;
-            touch2 = control.None;
+            touch2 = Control.None;
         }
 
-        if (touch1 == control.Drag && touch2 == control.Joystick) invertTourch = true;
+        if (touch1 == Control.Drag && touch2 == Control.Joystick) invertTourch = true;
 
         if (joystick.touchEnd)
         {
-            if (touch1 == control.Joystick) touch1 = control.None;
-            else if (touch2 == control.Joystick) touch2 = control.None;
+            if (touch1 == Control.Joystick) touch1 = Control.None;
+            else if (touch2 == Control.Joystick) touch2 = Control.None;
         }
 
         if (touchCount > 0)
@@ -69,37 +68,37 @@ public class MovementControlCam : MonoBehaviour
                 return;
             }
 
-            if (touch1 != control.Joystick && touch2 != control.Drag && !joystick.OnStick(Input.GetTouch(0).position))
+            if (touch1 != Control.Joystick && touch2 != Control.Drag && !joystick.OnStick(Input.GetTouch(0).position))
             {
-                touch1 = control.Drag;
+                touch1 = Control.Drag;
 
                 TouchDrag(Input.GetTouch(0));
             }
-            else if (touch1 != control.Drag && touch2 != control.Joystick && (joystick.touched || joystick.OnStick(Input.GetTouch(0).position)))
+            else if (touch1 != Control.Drag && touch2 != Control.Joystick && (joystick.touched || joystick.OnStick(Input.GetTouch(0).position)))
             {
-                touch1 = control.Joystick;
+                touch1 = Control.Joystick;
                 
                 joystick.touched = true;
                 
                 joystick.touchInput = Input.GetTouch(0);
             }
 
-            if (touch1 != control.Drag && touch2 != control.Drag)
+            if (touch1 != Control.Drag && touch2 != Control.Drag)
             {
                 transform.forward = Vector3.Lerp(transform.forward, player.forwards, Time.deltaTime);
             }
 
             if (touchCount < 2) return;
-            if (touch1 != control.Joystick && touch2 != control.Drag && (joystick.touched || joystick.OnStick(Input.GetTouch(1).position)))
+            if (touch1 != Control.Joystick && touch2 != Control.Drag && (joystick.touched || joystick.OnStick(Input.GetTouch(1).position)))
             {
-                touch2 = control.Joystick;
+                touch2 = Control.Joystick;
                 
                 joystick.touched = true;
                 joystick.touchInput = Input.GetTouch(1);
             }
-            else if (touch1 != control.Drag && touch2 != control.Joystick && !joystick.OnStick(Input.GetTouch(1).position))
+            else if (touch1 != Control.Drag && touch2 != Control.Joystick && !joystick.OnStick(Input.GetTouch(1).position))
             {
-                touch2 = control.Drag;
+                touch2 = Control.Drag;
 
                 if (invertTourch)
                 {
@@ -115,8 +114,8 @@ public class MovementControlCam : MonoBehaviour
         else
         {
             transform.forward = Vector3.Lerp(transform.forward, player.forwards, Time.deltaTime);
-            touch1 = control.None;
-            touch2 = control.None;
+            touch1 = Control.None;
+            touch2 = Control.None;
             invertTourch = false;
         }
     }
@@ -125,8 +124,8 @@ public class MovementControlCam : MonoBehaviour
     {
         if (touchDrag.phase == TouchPhase.Ended || touchDrag.phase == TouchPhase.Canceled)
         {
-            if (touch1 == control.Drag) touch1 = control.None;
-            else if (touch2 == control.Drag) touch2 = control.None;
+            if (touch1 == Control.Drag) touch1 = Control.None;
+            else if (touch2 == Control.Drag) touch2 = Control.None;
             return;
         }
 
@@ -149,7 +148,7 @@ public class MovementControlCam : MonoBehaviour
     }
 }
 
-enum control
+enum Control
 {
     None,
     Drag,
