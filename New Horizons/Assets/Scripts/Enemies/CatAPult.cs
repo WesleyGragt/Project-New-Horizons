@@ -18,6 +18,10 @@ public class CatAPult : MonoBehaviour
     public HingeJoint joint;
     public float playerReachedDistance;
     public float flipBackDelay;
+    [Header("Sounds")]
+    public AudioSource walkingSource;
+    public GameObject flipSound;
+    public GameObject alertSound;
     [Header("Components")]
     public Rigidbody rigidbody;
     [Header("Animation")]
@@ -61,6 +65,10 @@ public class CatAPult : MonoBehaviour
                 animator.SetBool("Home", false);
             }
         }
+        else
+        {
+            walkingSource.Stop();
+        }
     }
 
     public void SetAlert(bool alert)
@@ -71,7 +79,7 @@ public class CatAPult : MonoBehaviour
         {
             //play alert effect
             animator.SetBool("Alert", true);
-            //play alert sound
+            Instantiate(alertSound, transform.position, Quaternion.identity);
         }
         else
         {
@@ -87,7 +95,7 @@ public class CatAPult : MonoBehaviour
         if (chasing)
         {
             animator.SetBool("Chase", true);
-            //start move sound
+            walkingSource.Play();
             curTarget = player.transform;
         }
         else
@@ -102,7 +110,9 @@ public class CatAPult : MonoBehaviour
         yield return new WaitForSeconds(homeDelay);
         curTarget = home;
         isHoming = true;
+        walkingSource.Play();
         animator.SetBool("Home", true);
+        animator.SetBool("Alert", false);
     }
 
     void RotateTowards(Vector3 rotTarget)
@@ -115,6 +125,7 @@ public class CatAPult : MonoBehaviour
 
     void Flip()
     {
+        Instantiate(flipSound, transform.position, transform.rotation);
         rigidbody.constraints = RigidbodyConstraints.FreezeAll;
         animator.enabled = false;
         joint.useSpring = true;

@@ -8,13 +8,14 @@ public class PinPaw : MonoBehaviour
     [Header("Bounce")]
     public float force;
     [Header("Targets")]
-    //public Player player;
-    public Transform player;
+    public Player player;
     [Header("Animation")]
     public Animator animator;
     [Header("Effects")]
     public ParticleSystem bonkParticle;
     public float effectDelay;
+    [Header("Sounds")]
+    public AudioSource boingSource;
     [Header("States")]
     public bool isAlerted;
 
@@ -22,7 +23,7 @@ public class PinPaw : MonoBehaviour
     {
         if (player == null)
         {
-            //player = GameObject.FindFirstObjectByType<Player>();
+            player = GameObject.FindFirstObjectByType<Player>();
         }
     }
 
@@ -50,9 +51,9 @@ public class PinPaw : MonoBehaviour
 
     public void Bounce(Vector3 dir)
     {
+        boingSource.Play();
         animator.SetTrigger("Bounce");
-        player.GetComponent<Rigidbody>().AddForce(dir * force);
-        //player.rb.AddForce(dir * force);
+        StartCoroutine(DelayedBounce(dir));
         StartCoroutine(DelayedEffects());
     }
 
@@ -70,5 +71,13 @@ public class PinPaw : MonoBehaviour
         bonkParticle.Play();
         //play bonk sound
         
+    }
+
+    IEnumerator DelayedBounce(Vector3 dir)
+    {
+        yield return new WaitForSeconds(.1f);
+        player.GetComponent<Rigidbody>().AddForce(dir * force);
+        //player.rb.AddForce(dir * force);
+        StartCoroutine(DelayedEffects());
     }
 }

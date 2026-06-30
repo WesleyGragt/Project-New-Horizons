@@ -21,8 +21,12 @@ public class SniPurr : MonoBehaviour
     [Header("Effects")]
     public ParticleSystem suckParticle;
     public ParticleSystem shootParticle;
+    [Header("Sounds")]
+    public GameObject alertSound;
+    public GameObject shootSound;
+    public GameObject suckSound;
     [Header("Animation")]
-    public Animator animator;
+    [SerializeField] private Animator animator;
     [Header("States")]
     public bool isAlerted;
     public bool isShooting;
@@ -42,6 +46,7 @@ public class SniPurr : MonoBehaviour
         if (isAlerted && !isShooting)
         {
             RotateTowards(curTarget.position);
+            animator.SetBool("IsShooting", false);
         }
         if (isShooting)
         {
@@ -50,20 +55,17 @@ public class SniPurr : MonoBehaviour
             curShootCooldown -= Time.deltaTime;
             if(curShootCooldown < shootAnimStartOffset)
             {
-                if(animator == null)
-                {
-                    animator = GetComponent<Animator>();
-                }
                 animator.SetBool("IsShooting", true);
-                suckParticle.Play();
+
             }
-            if(curShootCooldown < 0)
+            if (curShootCooldown < 0)
             {
                 curBurstShotCooldown -= Time.deltaTime;
                 if(curBurstShotCooldown < 0)
                 {
                     curBurstShotCooldown = burstShotCooldown;
                     Instantiate(bullet, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
+                    Instantiate(shootSound, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
                     shootParticle.Play();
                     curBurstAmount++;
                     if(curBurstAmount >= bulletsPerBurst)
@@ -71,6 +73,7 @@ public class SniPurr : MonoBehaviour
                         curBurstAmount = 0;
                         curShootCooldown = shootCooldown;
                         animator.SetBool("IsShooting", false);
+
                     }
                 }
             }
@@ -95,7 +98,7 @@ public class SniPurr : MonoBehaviour
         {
             //play alert effect
             animator.SetTrigger("Alerted");
-            //play alert sound
+            Instantiate(alertSound, transform.position, Quaternion.identity);
         }
         else
         {
@@ -110,6 +113,9 @@ public class SniPurr : MonoBehaviour
         if (shooting)
         {
             curTarget = player.transform;
+            Instantiate(suckSound, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
+            suckParticle.Play();
+
         }
         else
         {

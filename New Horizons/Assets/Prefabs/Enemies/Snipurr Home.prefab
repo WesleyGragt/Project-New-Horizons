@@ -81,7 +81,7 @@ MonoBehaviour:
   rotSpeed: 3
   bullet: {fileID: 4355795469748804040, guid: 8cfad6ebd2fc07b46b7eee11d06fbe08, type: 3}
   bulletSpawnPoint: {fileID: 1314831899123587183}
-  shootAnimStartOffset: 0.7
+  shootAnimStartOffset: 0.6
   shootCooldown: 1
   bulletsPerBurst: 3
   burstShotCooldown: 0.2
@@ -89,6 +89,9 @@ MonoBehaviour:
   player: {fileID: 0}
   suckParticle: {fileID: 4645923170645683080}
   shootParticle: {fileID: 9003211905422726802}
+  alertSound: {fileID: 3872635393086361727, guid: f89c645445b6ab449a534b5758937fdc, type: 3}
+  shootSound: {fileID: 3872635393086361727, guid: f86654ae1806a6e4b8b457e363762403, type: 3}
+  suckSound: {fileID: 3872635393086361727, guid: 655021db5617b324ca9bb0d7806dd96d, type: 3}
   animator: {fileID: 6693769390903272910}
   isAlerted: 0
   isShooting: 0

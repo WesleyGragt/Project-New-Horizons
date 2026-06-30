@@ -151,3 +151,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 753599826264618122}
   force: 1000
+  hitParticle: {fileID: 2521161417241725458, guid: 48b3aa84fb28d9f44b46a5a84c1189a2, type: 3}
