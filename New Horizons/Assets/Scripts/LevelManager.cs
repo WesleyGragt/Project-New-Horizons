@@ -10,6 +10,6 @@ public class LevelManager : MonoBehaviour
     public void SeedGet()
     {
         seedsColleted++;
-        seedText.text = seedsColleted.ToString();
+        if (seedText != null) seedText.text = seedsColleted.ToString();
     }
 }
