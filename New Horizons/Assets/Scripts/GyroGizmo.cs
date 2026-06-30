@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class GyroGizmo : MonoBehaviour
 {
-    Player player;
+    [SerializeField] Player player;
 
     private void Start()
     {
-        player = FindFirstObjectByType<Player>();
+        if (player == null) player = FindFirstObjectByType<Player>();
     }
 
     private void Update()

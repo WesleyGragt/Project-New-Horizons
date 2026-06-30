@@ -142,7 +142,7 @@ Material:
     - _BaseColor: {r: 0.93724966, g: 0.91372555, b: 0.84706664, a: 1}
     - _Color: {r: 0.93724966, g: 0.91372555, b: 0.84706664, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
-    - _MainCol: {r: 0.9411765, g: 0.91764706, b: 0.8509804, a: 1}
+    - _MainCol: {r: 0.6666667, g: 0.6431373, b: 0.5764706, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

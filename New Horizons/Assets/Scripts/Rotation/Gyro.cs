@@ -7,6 +7,7 @@ public class Gyro : MonoBehaviour
 {
     //If time, combine AcceleroMeter with Gyroscope
     //Check out sensor fusion to combine both!!!!
+    [SerializeField] private Player player;
     public GameObject pivot;
     [Range(0, 1)] public float sensitivity = 1f;
     public float maxAngle = 45f;
@@ -16,7 +17,6 @@ public class Gyro : MonoBehaviour
 
     private Vector3 smoothAcceleration = Vector3.zero;
 
-    private Player player;
 
     private Vector3 startRot = Vector3.zero;
     private Vector3 acceleration;
@@ -32,7 +32,7 @@ public class Gyro : MonoBehaviour
     private bool resetRot = false;
     private void Start()
     {
-        player = FindFirstObjectByType<Player>();
+        if (player == null) player = FindFirstObjectByType<Player>();
 
         lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
         lowPassValue = Input.acceleration;
@@ -60,7 +60,6 @@ public class Gyro : MonoBehaviour
 
         AcceleroMeter();
         if (resetRot) ResetRot();
-        Debug.Log(resetRot);
         //ResetDisplacement(); Fucked with camera. For this we will hold a council of me, myself and I. The council has decided to execute order 66.
     }
 
@@ -88,9 +87,9 @@ public class Gyro : MonoBehaviour
 
         smoothAcceleration = Vector3.Lerp(smoothAcceleration, acceleration, smoothSpeed * Time.deltaTime);
 
-        float rotationInputX = Mathf.Abs(smoothAcceleration.x * sensitivity) * -Mathf.Sign(smoothAcceleration.x * sensitivity);
-        float rotationInputZ = Mathf.Abs(smoothAcceleration.z * sensitivity) * -Mathf.Sign(smoothAcceleration.z * sensitivity);
-        Vector3 rotation = new Vector3(-rotationInputZ * 90, 0, -rotationInputX * 90);
+        float rotationInputX = Mathf.Abs(smoothAcceleration.x) * -Mathf.Sign(smoothAcceleration.x);
+        float rotationInputZ = Mathf.Abs(smoothAcceleration.z) * -Mathf.Sign(smoothAcceleration.z);
+        Vector3 rotation = new Vector3(-rotationInputZ * 90, 0, -rotationInputX * 90) * sensitivity;
 
         if (rotation.x > maxAngle) rotation.x = maxAngle;
         else if (rotation.x < -maxAngle) rotation.x = -maxAngle;
@@ -122,7 +121,7 @@ public class Gyro : MonoBehaviour
         sensitivity = gyroSense;
     }
 
-    public void zeroRotation()
+    public void ZeroRotation()
     {
         resetRot = true;
     }
@@ -141,6 +140,14 @@ public class Gyro : MonoBehaviour
 
         player.transform.parent = null;
         transform.parent = null;
+    }
+
+    private Vector3 Sensitivity(Vector3 acceleration)
+    {
+        Vector3 cross = Vector3.Cross(startRot, acceleration).normalized;
+        float angle = Vector3.Angle(startRot, acceleration) * sensitivity;
+
+        return Quaternion.AngleAxis(angle, cross).eulerAngles;
     }
 }
 

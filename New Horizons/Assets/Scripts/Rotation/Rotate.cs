@@ -3,14 +3,13 @@ using UnityEngine;
 
 public class Rotate : MonoBehaviour
 {
+    [SerializeField] private Player player;
     public GameObject pivot;
     public float maxAngle = 22.5f;
     public Joystick joystick;
     [Space]
     public float updateSpeed = 2f;
     public float resetTransformSpeed = 3f;
-
-    private Player player;
     
     private Quaternion prevRot;
 
@@ -29,7 +28,7 @@ public class Rotate : MonoBehaviour
 
     private void Start()
     {
-        player = FindFirstObjectByType<Player>();
+        if (player == null) player = FindFirstObjectByType<Player>();
     }
 
     void Update()
@@ -56,7 +55,7 @@ public class Rotate : MonoBehaviour
         transform.parent = null;
     }
 
-    public void zeroRotation()
+    public void ZeroRotation()
     {
         resetRot = true;
     }

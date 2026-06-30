@@ -1,13 +1,10 @@
-using System.Runtime.CompilerServices;
 using TMPro;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class CameraControl : MonoBehaviour
+public class MovementControlCam : MonoBehaviour
 {
     //Automatic camControl
+    [SerializeField] private Player player;
     public Transform cam;
     public float minDistance;
     public TextMeshProUGUI text;
@@ -23,11 +20,10 @@ public class CameraControl : MonoBehaviour
     control touch2 = control.None;
     bool invertTourch = false;
 
-    private Player player;
 
     private void Start()
     {
-        player = FindFirstObjectByType<Player>();
+        if (player == null) player = FindFirstObjectByType<Player>();
     }
 
     private void Update()
