@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [SerializeField] private Rigidbody rb;
     public float speed;
     public Transform cam;
 
@@ -11,14 +12,13 @@ public class Player : MonoBehaviour
     [HideInInspector] public Vector3 velocity;
     [HideInInspector] public float maxVelocity;
     
-    private Rigidbody rb;
 
     private void Start()
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
-        rb = GetComponent<Rigidbody>();
+        if (rb == null) rb = GetComponent<Rigidbody>();
 
         rotForwards = cam.transform.forward;
         rotRight = cam.transform.right;
