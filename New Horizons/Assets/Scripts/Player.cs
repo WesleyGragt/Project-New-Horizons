@@ -3,7 +3,8 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [SerializeField] private Rigidbody rb;
-    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioSource bonkAudio;
+    [SerializeField] private AudioSource rollingAudio;
     [SerializeField] private GameObject bumbParticle;
     public float speed;
     public Transform cam;
@@ -13,7 +14,8 @@ public class Player : MonoBehaviour
     [HideInInspector] public Vector3 rotRight;
     [HideInInspector] public Vector3 velocity;
     [HideInInspector] public float maxVelocity;
-    
+
+    private bool playRollSound = false;
 
     private void Start()
     {
@@ -39,6 +41,16 @@ public class Player : MonoBehaviour
             forwards.y = 0;
             forwards = forwards.normalized;
         }
+
+        if (velocity.magnitude > 10 && !rollingAudio.isPlaying)
+        {
+            rollingAudio.loop = true;
+            rollingAudio.Play();
+        } else if (velocity.magnitude < 10)
+        {
+            rollingAudio.loop = false;
+            rollingAudio.Stop();
+        }
     }
 
     private void FixedUpdate()
@@ -62,7 +74,7 @@ public class Player : MonoBehaviour
             particle.transform.localScale *= 3;
             Destroy(particle, 3);
 
-            audioSource.Play();
+            bonkAudio.Play();
         }
     }
 }
