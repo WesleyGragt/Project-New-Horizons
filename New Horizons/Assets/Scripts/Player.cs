@@ -3,6 +3,8 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [SerializeField] private Rigidbody rb;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private GameObject bumbParticle;
     public float speed;
     public Transform cam;
 
@@ -50,5 +52,17 @@ public class Player : MonoBehaviour
 
         if (velocity.y < .1f) rb.AddForce(Vector3.down * speed);
         else rb.AddForce(Vector3.down / 5 * speed);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (rb.linearVelocity.magnitude < velocity.magnitude * .95)
+        {
+            var particle = Instantiate(bumbParticle, collision.contacts[0].point, Quaternion.identity);
+            particle.transform.localScale *= 3;
+            Destroy(particle, 3);
+
+            audioSource.Play();
+        }
     }
 }
