@@ -3,9 +3,12 @@ using UnityEngine;
 public class Hamster : MonoBehaviour
 {
     [SerializeField] private Player playerScript;
-    public Animator animator;
-    public GameObject thickHamster;
-    public GameObject flatHamster;
+    [SerializeField] private ParticleSystem dustParticle;
+
+    [SerializeField] private Animator animator;
+    [SerializeField] private GameObject thickHamster;
+    [SerializeField] private GameObject flatHamster;
+    
     public float maxAngle = 22.5f;
     public float percFlatHamster = 90f;
 
@@ -21,13 +24,16 @@ public class Hamster : MonoBehaviour
     {
         transform.position = playerTrans.position;
 
-        if ((playerScript.velocity.magnitude / playerScript.maxVelocity) > percFlatHamster/100)
+        DustParticle();
+
+        if ((playerScript.velocity.magnitude / playerScript.maxVelocity) > percFlatHamster / 100)
         {
             thickHamster.SetActive(false);
             flatHamster.SetActive(true);
 
             transform.parent = playerTrans;
-        } else
+        }
+        else
         {
             transform.parent = null;
 
@@ -50,5 +56,19 @@ public class Hamster : MonoBehaviour
 
         transform.eulerAngles = rotation;
         transform.forward = Vector3.Lerp(transform.forward, playerScript.forwards, Time.deltaTime*4);
+    }
+
+    private void DustParticle()
+    {
+        Vector3 dustPos = transform.position;
+        dustPos.y -= transform.lossyScale.x * 4;
+        dustParticle.transform.position = dustPos;
+
+        bool ground = false;
+
+        if (Physics.Raycast(new Ray(transform.position, Vector3.down), transform.lossyScale.x * 6)) ground = true;
+
+        if (playerScript.velocity.magnitude < 1 || !ground) dustParticle.Stop();
+        else if (!dustParticle.isPlaying && ground) dustParticle.Play();
     }
 }

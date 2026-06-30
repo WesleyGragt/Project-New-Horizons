@@ -7,7 +7,6 @@ public class MovementControlCam : MonoBehaviour
     [SerializeField] private Player player;
     public Transform cam;
     public float minDistance;
-    public TextMeshProUGUI text;
     
     //Drag Control
     [Space]
