@@ -31,7 +31,7 @@ public class PinPaw : MonoBehaviour
     {
         if (isAlerted)
         {
-            RotateTowards(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
+            RotateTowards(player.transform.position);
         }
     }
 

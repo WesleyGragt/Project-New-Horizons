@@ -4,12 +4,28 @@ using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
-    public TextMeshPro seedText;
+    public TextMeshProUGUI seedText;
+    public TextMeshProUGUI timeText;
     public int seedsColleted;
+    public float timeSinceStart;
+
+
+    private void Update()
+    {
+        timeSinceStart += Time.deltaTime;
+        if (timeText != null)
+        {
+            timeText.text = timeSinceStart.ToString("#");
+        }
+
+    }
 
     public void SeedGet()
     {
         seedsColleted++;
-        if (seedText != null) seedText.text = seedsColleted.ToString();
+        if(seedText != null)
+        {
+            seedText.text = seedsColleted.ToString();
+        }
     }
 }
