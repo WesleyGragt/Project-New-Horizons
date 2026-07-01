@@ -323,7 +323,7 @@ Transform:
   m_GameObject: {fileID: 2346634955360896272}
   serializedVersion: 2
   m_LocalRotation: {x: 0.13867502, y: 0.69337535, z: -0.13867505, w: 0.69337523}
-  m_LocalPosition: {x: 1.8800011, y: 47.15, z: 4.6700134}
+  m_LocalPosition: {x: 1.8800006, y: 47.15, z: 4.670014}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -789,6 +789,7 @@ MonoBehaviour:
   bonkAudio: {fileID: 8595207834802154803}
   rollingAudio: {fileID: 1052643954122876794}
   bumbParticle: {fileID: 2183104226817257460, guid: 8aaaa3b914f410c49a6fe3e675345f4a, type: 3}
+  starParticle: {fileID: 0}
   speed: 15
   maxVelocity: 15
   respawnTime: 1
@@ -1064,8 +1065,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6073002148114317646}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.13867502, y: 0.69337535, z: -0.13867505, w: 0.69337523}
-  m_LocalPosition: {x: 1.8800011, y: 47.15, z: 4.6700134}
+  m_LocalRotation: {x: 0.13867506, y: 0.69337523, z: -0.13867506, w: 0.69337523}
+  m_LocalPosition: {x: -9.804619, y: 40.84, z: -28.975605}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

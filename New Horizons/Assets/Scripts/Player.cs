@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
 
         rotForwards = cam.transform.forward;
         rotRight = cam.transform.right;
-        rb.maxLinearVelocity = maxVelocity;
+        //rb.maxLinearVelocity = maxVelocity;
     }
 
     private void Update()
@@ -70,6 +70,11 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.transform.tag == "Pinpaw")
+        {
+            collision.transform.GetComponent<PinPaw>().Bounce(Vector3.Normalize(transform.position - collision.contacts[0].point));
+        }
+
         if (rb.linearVelocity.magnitude < velocity.magnitude * .95)
         {
             var puffParticle = Instantiate(bumbParticle, collision.contacts[0].point, Quaternion.identity);

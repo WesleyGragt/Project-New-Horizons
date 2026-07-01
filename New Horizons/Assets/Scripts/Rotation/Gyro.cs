@@ -9,7 +9,7 @@ public class Gyro : MonoBehaviour
     //Check out sensor fusion to combine both!!!!
     [SerializeField] private Player player;
     public GameObject pivot;
-    [Range(0, 1)] public float sensitivity = 1f;
+    [Range(0, 2)] public float sensitivity = 1f;
     public float maxAngle = 45f;
     public float smoothSpeed = 1f;
     public float updateSpeed = 2f;
