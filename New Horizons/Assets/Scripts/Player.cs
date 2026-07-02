@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -19,8 +20,7 @@ public class Player : MonoBehaviour
     [HideInInspector] public Vector3 rotRight;
     [HideInInspector] public Vector3 velocity;
     
-    bool timerActive = false;
-    float respawnTimer;
+    float timer;
 
     private void Start()
     {
@@ -36,13 +36,6 @@ public class Player : MonoBehaviour
         rotForwards = new Vector3(cam.forward.x, 0, cam.forward.z).normalized;
         rotRight = -Vector3.Cross(rotForwards, Vector3.up);
 
-        if (velocity.y > -maxVelocity && velocity.y < -maxVelocity * .8f && !timerActive)
-        {
-            camController.SetActive(false);
-            respawnTimer = Time.time + respawnTime;
-            timerActive = true;
-        }
-
         if (rb.linearVelocity.magnitude > 0.1)
         {
             forwards = rb.linearVelocity;
@@ -52,7 +45,7 @@ public class Player : MonoBehaviour
         else rb.angularVelocity *= 0.9f;
 
         Audio();
-        if (timerActive) Respawner();
+        Respawner();
     }
 
     private void FixedUpdate()
@@ -116,9 +109,30 @@ public class Player : MonoBehaviour
     }
     private void Respawner()
     {
-        if (Time.time > respawnTimer)
+        if (Physics.Raycast(new Ray(transform.position, Vector3.down), out RaycastHit hitInfo, 10))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            if (hitInfo.transform.tag == "CatAPult")
+            {
+                if (Time.time > timer)
+                {
+                    camController.SetActive(false);
+                    StartCoroutine(ReloadLevel(2));
+                }
+            } else timer = Time.time + respawnTime;
         }
+        else
+        {
+            if (Time.time > timer)
+            {
+                camController.SetActive(false);
+                StartCoroutine(ReloadLevel(2));
+            }
+        }
+    }
+
+    private IEnumerator ReloadLevel(int time)
+    {
+        yield return new WaitForSeconds(time);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

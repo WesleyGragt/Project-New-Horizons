@@ -831,7 +831,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -966,7 +966,7 @@ GameObject:
   - component: {fileID: 4018276574065035417}
   m_Layer: 0
   m_Name: Cat-a-pult Home
-  m_TagString: Untagged
+  m_TagString: CatAPult
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

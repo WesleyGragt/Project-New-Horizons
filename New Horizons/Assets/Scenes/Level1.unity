@@ -2737,6 +2737,10 @@ PrefabInstance:
       propertyPath: finishMenuObj
       value: 
       objectReference: {fileID: 2036780549}
+    - target: {fileID: 8129042098018285507, guid: 817c34add548ec94bb3bc0cb8ee04504, type: 3}
+      propertyPath: nextLevelName
+      value: Level2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

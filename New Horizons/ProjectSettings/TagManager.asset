@@ -6,6 +6,7 @@ TagManager:
   tags:
   - ColliderTrigger
   - Pinpaw
+  - CatAPult
   layers:
   - Default
   - TransparentFX
