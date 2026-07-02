@@ -7,31 +7,19 @@ public class SettingsObject : ScriptableObject
     ControlSetting control = ControlSetting.Joystick;
     public float sensitivity = 0.9f;
 
+    public float masterVol;
+    public float musicVol;
+    public float sfxVol;
+
     private Rotate rotateScript;
     private Gyro gyroScript;
 
+    public int controlInt = 0;
+
     public void ToggleControl(int value)
     {
+        controlInt = value;
         control = (ControlSetting)value;
-
-        if (rotateScript == null || gyroScript == null)
-        {
-            rotateScript = FindFirstObjectByType<Rotate>();
-            gyroScript = FindFirstObjectByType<Gyro>();
-
-            if (rotateScript == null || gyroScript == null) return;
-        }
-
-        if (control == ControlSetting.Joystick)
-        {
-            rotateScript.enabled = true;
-            gyroScript.enabled = false;
-        }
-        else if (control == ControlSetting.Gyro)
-        {
-            rotateScript.enabled = false;
-            gyroScript.enabled = true;
-        }
     }
 
     public void SetSensitivity(float value)

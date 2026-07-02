@@ -13,3 +13,7 @@ MonoBehaviour:
   m_Name: ControlSettings
   m_EditorClassIdentifier: 
   sensitivity: 1
+  masterVol: -1
+  musicVol: -1
+  sfxVol: -1
+  controlInt: 0

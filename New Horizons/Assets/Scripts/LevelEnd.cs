@@ -24,7 +24,8 @@ public class LevelEnd : MonoBehaviour
         playerCamObj.SetActive(false);
         finishSound.Play();
         StartCoroutine(FinishMenuPopup());
-        timeText.text = levelManager.timeSinceStart.ToString("#");
+        timeText.text = "Time took: " + levelManager.timeSinceStart.ToString("#") + " seconds";
+        seedText.text = "Seeds Grabbed: " + levelManager.seedsColleted;
     }
 
     IEnumerator FinishMenuPopup()

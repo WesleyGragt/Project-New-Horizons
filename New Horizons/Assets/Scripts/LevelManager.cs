@@ -15,7 +15,7 @@ public class LevelManager : MonoBehaviour
         timeSinceStart += Time.deltaTime;
         if (timeText != null)
         {
-            timeText.text = timeSinceStart.ToString("#");
+            timeText.text = timeSinceStart.ToString("#") + "s";
         }
 
     }

@@ -789,7 +789,7 @@ MonoBehaviour:
   bonkAudio: {fileID: 8595207834802154803}
   rollingAudio: {fileID: 1052643954122876794}
   bumbParticle: {fileID: 2183104226817257460, guid: 8aaaa3b914f410c49a6fe3e675345f4a, type: 3}
-  starParticle: {fileID: 0}
+  starParticle: {fileID: 5692953719105402207, guid: fe430c01c9a965c4c80001b2c7f0ccae, type: 3}
   speed: 15
   maxVelocity: 15
   respawnTime: 1
